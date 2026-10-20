@@ -39,6 +39,10 @@ preprocess:
 mapping:
     # loss_threshold: 1000
     max_iteration: 4
+    radar_use_divisor: 3          # use the best 1/N radar points by velocity residual
+    radar_vel_gate: 0.5           # [m/s] skip radar if predicted vs radar ego velocity differ more than this
+    gravity_gate: 0.15            # [rad] skip gravity update above this gravity-direction error
+    outlier_z_thresh: 3.5         # modified z-score for radar noise inflation
     cube_side_length: 1000.0
     filter_size_surf: 0.5           # in some scenes with intense motion, reduce this value, such as set 0.15
     filter_size_map: 0.5           # in some scenes with intense motion, reduce this value, such as set 0.3

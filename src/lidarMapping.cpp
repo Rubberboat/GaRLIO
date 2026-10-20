@@ -139,6 +139,11 @@ double grav_residual;
 
 bool is_first_scan = true, undistortion = false, lidar_pushed = false, EKF_init_flag = false, pcd_save_en = false;
 double LASER_POINT_COV = 0.001, VELOCITY_COV = 0.05, gravity_COV = 0.01;
+// tunables that used to be hard-coded (defaults keep the previous behavior)
+int RADAR_USE_DIVISOR = 3;        // use the best 1/N radar points (lowest velocity residual)
+double RADAR_VEL_GATE = 0.5;      // [m/s] per-axis gap between predicted and radar ego velocity above which radar is skipped
+double GRAVITY_GATE = 0.15;       // [rad] gravity update is skipped when the estimate differs more than this
+double OUTLIER_Z_THRESH = 3.5;    // modified z-score above which a radar point's noise is inflated
 int init_imu_num = 1, feats_num = 0, scan_num = 0;
 double first_lidar_time = 0, last_imu_time = -1.0, last_radar_time = 0, last_lidar_time = 0, lidar_end_time = 0, lidar_mean_time = 0;
 double gyr_noise = 0.1, gyr_bias_noise = 0.0001, acc_noise = 0.1, acc_bias_noise = 0.0001;
@@ -973,14 +978,15 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
 			
 			/*** Computation of Measuremnt Jacobian matrix H and measurents vector ***/
 			
-			second_dim = radarCloudBody->points.size()/3;			
+			second_dim = radarCloudBody->points.size()/RADAR_USE_DIVISOR;			
 			if(!vel_update) second_dim = 0;
 
 			/*radar data is poor*/
-			if(abs((lio_state.rot_end.transpose()*(lio_state.vel_end)).x() - current_radar_vel.x())>0.5 ||
-			   abs((lio_state.rot_end.transpose()*(lio_state.vel_end)).y() - current_radar_vel.y())>0.5 ||
-			   abs((lio_state.rot_end.transpose()*(lio_state.vel_end)).z() - current_radar_vel.z())>0.5 )
-				second_dim = 0;
+			{
+				const V3D vel_gap = lio_state.rot_end.transpose()*lio_state.vel_end - current_radar_vel;
+				if (fabs(vel_gap.x()) > RADAR_VEL_GATE || fabs(vel_gap.y()) > RADAR_VEL_GATE || fabs(vel_gap.z()) > RADAR_VEL_GATE)
+					second_dim = 0;
+			}
 
 			h_size = effct_feat_num + second_dim;
 
@@ -1051,7 +1057,7 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
 			for (int i =0; i<second_dim; i++) {
 				if (mad == 0) break;
 				double modifiedZ = 0.6745 * (vel_residual(indices[i]) - median) / mad;
-				if (fabs(modifiedZ) > 3.5) {
+				if (fabs(modifiedZ) > OUTLIER_Z_THRESH) {
 					// R_j = R_v + alpha * M_j (paper Eq. 11); keep the covariance positive
 					vel_cov[i] = std::max(vel_cov[i] + VELOCITY_COV/5 * modifiedZ, VELOCITY_COV/10);
 				}
@@ -1093,7 +1099,7 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
 
 			grav_residual = 1- gravity_world.dot(gravity_cal);
 						
-			if(gravity_diff<0.15){
+			if(gravity_diff<GRAVITY_GATE){
 				publish_marker(gravity_cal, gravity_world, id);
 				H_x = Eigen::MatrixXd(h_size, 18);
 				meas_vec = Eigen::VectorXd(h_size);
@@ -1478,6 +1484,11 @@ int main(int argc, char **argv)
 	nh.param<double>("cov/LASER_POINT_COV", LASER_POINT_COV, 0.001);
 	nh.param<double>("cov/GRAVITY_COV", gravity_COV, 0.01);
 	nh.param<double>("cov/VELOCITY_COV", VELOCITY_COV, 0.05);
+	nh.param<int>("mapping/radar_use_divisor", RADAR_USE_DIVISOR, 3);
+	nh.param<double>("mapping/radar_vel_gate", RADAR_VEL_GATE, 0.5);
+	nh.param<double>("mapping/gravity_gate", GRAVITY_GATE, 0.15);
+	nh.param<double>("mapping/outlier_z_thresh", OUTLIER_Z_THRESH, 3.5);
+	if (RADAR_USE_DIVISOR < 1) RADAR_USE_DIVISOR = 1;
 
 	nh.param<std::string>("threshold/downsample_method", downsample_method, "VOXELGRID");
     nh.param<double>("threshold/downsample_resolution", downsample_resolution, 0.1);

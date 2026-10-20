@@ -74,6 +74,7 @@ This fork builds on the original GaRLIO and keeps its behavior; changes so far (
 - `lidarMapping`: empty radar clouds no longer index out of range; the MAD uses `nth_element` instead of a full sort.
 - `lidarMapping`: the rotation angle is clamped before `acos` (rounding could give NaN, which breaks the residual sort).
 - `lidarMapping`: radar covariance keeps the paper's rule (Eq. 11, `|M| > 3.5`), but is floored at `VELOCITY_COV/10` so a large negative score cannot make it zero or negative.
+- `lidarMapping`: the radar/gravity magic numbers are now YAML parameters under `mapping/` with the old values as defaults: `radar_use_divisor` (3), `radar_vel_gate` (0.5), `gravity_gate` (0.15), `outlier_z_thresh` (3.5). The radar-gate check also uses `fabs` instead of an unqualified `abs`, which could resolve to the integer overload.
 - CMake: minimum version 3.0.2, one set of compile flags, unused `image_transport`/`cv_bridge` removed.
 
 ## Abstract
