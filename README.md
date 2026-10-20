@@ -66,6 +66,14 @@ This repository contains the code for **GaRLIO: Gravity enhanced Radar-LiDAR-Ine
 
 [28/01/2025]: GaRLIO is accepted to ICRA 2025.
 
+## Fork changes
+This fork builds on the original GaRLIO and keeps its behavior; changes so far (not yet compile-tested):
+- `lidarMapping`: fix a data race on `max_pt_range` in the OpenMP loop.
+- `lidarMapping`: `lidar_weight` is cleared every iteration (it previously grew without bound).
+- `lidarMapping`: `mapping/max_iteration` is honored instead of a hardcoded 4.
+- `lidarMapping`: empty radar clouds no longer index out of range; the MAD uses `nth_element` instead of a full sort.
+- CMake: minimum version 3.0.2, one set of compile flags, unused `image_transport`/`cv_bridge` removed.
+
 ## Abstract
 
 <details>
