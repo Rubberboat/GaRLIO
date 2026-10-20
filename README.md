@@ -73,7 +73,7 @@ This fork builds on the original GaRLIO and keeps its behavior; changes so far (
 - `lidarMapping`: `mapping/max_iteration` is honored instead of a hardcoded 4.
 - `lidarMapping`: empty radar clouds no longer index out of range; the MAD uses `nth_element` instead of a full sort.
 - `lidarMapping`: the rotation angle is clamped before `acos` (rounding could give NaN, which breaks the residual sort).
-- `lidarMapping`: radar covariance is only inflated for outliers with a high modified z-score; a large negative score previously shrank it, down to zero or negative.
+- `lidarMapping`: radar covariance keeps the paper's rule (Eq. 11, `|M| > 3.5`), but is floored at `VELOCITY_COV/10` so a large negative score cannot make it zero or negative.
 - CMake: minimum version 3.0.2, one set of compile flags, unused `image_transport`/`cv_bridge` removed.
 
 ## Abstract

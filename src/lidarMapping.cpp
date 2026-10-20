@@ -1051,7 +1051,10 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
 			for (int i =0; i<second_dim; i++) {
 				if (mad == 0) break;
 				double modifiedZ = 0.6745 * (vel_residual(indices[i]) - median) / mad;
-				if (modifiedZ > 3.5) vel_cov[i] = vel_cov[i] + VELOCITY_COV/5 * modifiedZ;
+				if (fabs(modifiedZ) > 3.5) {
+					// R_j = R_v + alpha * M_j (paper Eq. 11); keep the covariance positive
+					vel_cov[i] = std::max(vel_cov[i] + VELOCITY_COV/5 * modifiedZ, VELOCITY_COV/10);
+				}
 			}
 			//
 
