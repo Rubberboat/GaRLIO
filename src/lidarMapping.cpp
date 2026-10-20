@@ -862,7 +862,7 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
     double trace = R_rel.trace();
 
     // Calculate the rotation angle
-    double angle = std::acos((trace - 1.0) / 2.0);
+    double angle = std::acos(std::max(-1.0, std::min(1.0, (trace - 1.0) / 2.0)));
 	int rematch_num = 0;
 	EKF_converged_flag = true;
 	double max_pt_range = 0.0;
@@ -1051,7 +1051,7 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
 			for (int i =0; i<second_dim; i++) {
 				if (mad == 0) break;
 				double modifiedZ = 0.6745 * (vel_residual(indices[i]) - median) / mad;
-				if (abs(modifiedZ)>3.5) vel_cov[i]=vel_cov[i] + VELOCITY_COV/5 * modifiedZ;
+				if (modifiedZ > 3.5) vel_cov[i] = vel_cov[i] + VELOCITY_COV/5 * modifiedZ;
 			}
 			//
 
