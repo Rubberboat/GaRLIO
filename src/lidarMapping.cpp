@@ -1036,13 +1036,18 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
 				[&vel_residual](size_t i1, size_t i2) { return vel_residual(i1) < vel_residual(i2); });
 
 			//z score calculate
-			double median = vel_residual(indices[radarCloudBody->points.size()/2]);
-			std::vector<double> absoluteDeviations;
-			for (int i =0; i<radarCloudBody->points.size(); i++) {
-				absoluteDeviations.push_back(std::fabs(vel_residual(indices[i]) - median));
+			double median = 0.0, mad = 0.0;
+			if (!indices.empty()) {
+				const size_t mid = indices.size()/2;
+				median = vel_residual(indices[mid]);
+				std::vector<double> absoluteDeviations;
+				absoluteDeviations.reserve(indices.size());
+				for (size_t i = 0; i < indices.size(); i++) {
+					absoluteDeviations.push_back(std::fabs(vel_residual(indices[i]) - median));
+				}
+				std::nth_element(absoluteDeviations.begin(), absoluteDeviations.begin() + mid, absoluteDeviations.end());
+				mad = absoluteDeviations[mid];
 			}
-			std::sort(absoluteDeviations.begin(), absoluteDeviations.end());
-			double mad = absoluteDeviations[radarCloudBody->points.size()/2];
 			for (int i =0; i<second_dim; i++) {
 				if (mad == 0) break;
 				double modifiedZ = 0.6745 * (vel_residual(indices[i]) - median) / mad;
