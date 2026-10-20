@@ -30,7 +30,7 @@
 
 This repository contains the code for **GaRLIO: Gravity enhanced Radar-LiDAR-Inertial Odometry**, which is accepted by ICRA 2025. 
 
-GPT의 Point-LIO × GaRLIO Phase 0 연구 환경은 [research_ws_gpt](research_ws_gpt/README.md)에 있습니다. 이 브랜치는 원본 GaRLIO 패키지와 별도로 연구용 Docker·실험 도구를 제공합니다. 전체 ROS 빌드와 실데이터 재생은 아직 미검증입니다.
+이 fork는 **GaRLIO를 기반으로 기존 기능에 개선사항을 추가**합니다. 수정 대상은 루트의 `src/`, `include/`, `config/`, `launch/`이며, ROS 패키지 이름 `garlio`를 유지합니다. GPT의 빌드·실험 환경과 현재 개발 계획은 [research_ws_gpt](research_ws_gpt/README.md)에 있습니다. 원본 GaRLIO(`garlio`)와 이 fork(`garlio_gpt`)를 별도 빌드 공간에서 비교하고, Point-LIO·FAST-LIO는 비교 기준으로 사용합니다. 현재 변경은 개발·검증 기반이며, 알고리즘 개선 효과와 전체 ROS 실행·실데이터 성능은 아직 검증하지 않았습니다.
 
 <!-- TABLE OF CONTENTS -->
 <details open="open" style='padding: 10px; border-radius:5px 30px 30px 5px; border-style: solid; border-width: 1px;'>

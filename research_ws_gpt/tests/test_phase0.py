@@ -91,8 +91,10 @@ class CoverageTests(unittest.TestCase):
     def test_tail_compares_to_correct_sensor(self):
         a = runner.validate_coverage(self.output, self.inputs, self.config, "point_lio", 2)
         b = runner.validate_coverage(self.output, self.inputs, self.config, "garlio", 2)
+        c = runner.validate_coverage(self.output, self.inputs, self.config, "garlio_gpt", 2)
         self.assertEqual(a["tail_lag_seconds"], 1)
         self.assertEqual(b["tail_lag_seconds"], 0)
+        self.assertEqual(c["tail_lag_seconds"], 0)
 
     def test_early_stall_fails_even_with_many_poses(self):
         self.output["last_stamp_ns"] = 3*10**9
@@ -130,7 +132,7 @@ class PreflightTests(unittest.TestCase):
         modules = {"rosbag": types.SimpleNamespace(Bag=Bag),
                    "genpy": types.SimpleNamespace(Time=types.SimpleNamespace(from_sec=lambda x: x))}
         config = {"common": {"lid_topic": "/lidar", "imu_topic": "/imu", "radar_topic": "/radar"},
-                  "preprocess": {"lidar_type": 0 if method == "garlio" else 1, "radar_type": 0}}
+                  "preprocess": {"lidar_type": 0 if method in runner.GARLIO_METHODS else 1, "radar_type": 0}}
         with patch.dict(sys.modules, modules):
             return runner.inspect_bag(Path("fake.bag"), method, config, 0, 3)
 
@@ -140,6 +142,11 @@ class PreflightTests(unittest.TestCase):
 
     def test_point_lio_does_not_require_radar(self):
         self.assertEqual(len(self.inspect(method="point_lio", radar=False)["topics"]), 2)
+
+    def test_fork_requires_radar_and_accepts_garlio_lidar_type(self):
+        self.assertEqual(len(self.inspect(method="garlio_gpt")["topics"]), 3)
+        with self.assertRaisesRegex(ValueError, "Missing/empty"):
+            self.inspect(method="garlio_gpt", radar=False)
 
     def test_wrong_lidar_message_type_fails(self):
         with self.assertRaisesRegex(ValueError, "expected"):

@@ -1,10 +1,19 @@
-name: Radar Point-LIO Phase 0 gpt
+name: GaRLIO Extensions Phase 0 gpt
 on:
   workflow_dispatch:
   push:
     paths:
       - 'research_ws_gpt/**'
       - '.github/workflows/research-phase0-gpt.yml'
+      - '.dockerignore'
+      - 'CMakeLists.txt'
+      - 'package.xml'
+      - 'LICENSE'
+      - 'src/**'
+      - 'include/**'
+      - 'config/**'
+      - 'launch/**'
+      - 'rviz_cfg/**'
 permissions:
   contents: read
 jobs:
@@ -19,12 +28,12 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Build pinned Noetic sources
+      - name: Build pinned baselines and GaRLIO fork overlay
         run: |
           mkdir -p research_ws_gpt/build_logs
           set -o pipefail
           docker build --build-arg BUILD_JOBS=2 --build-arg RESEARCH_GIT_COMMIT="$GITHUB_SHA" \
-            -f research_ws_gpt/docker/ros/Dockerfile -t radar-point-lio-ros:phase0-gpt research_ws_gpt \
+            -f research_ws_gpt/docker/ros/Dockerfile -t radar-point-lio-ros:phase0-gpt . \
             2>&1 | tee research_ws_gpt/build_logs/ros-build.log
       - name: Check ROS package discovery and config preparation
         run: |
@@ -33,7 +42,16 @@ jobs:
             python3 scripts/prepare_smoke_config.py garlio --output /tmp/garlio.yaml &&
             python3 scripts/prepare_smoke_config.py fast_lio --output /tmp/fast_lio.yaml &&
             python3 scripts/prepare_smoke_config.py point_lio --output /tmp/point_lio.yaml &&
+            PYTHONPATH=scripts python3 -c "from garlio_source import runtime_source; print(runtime_source(\"garlio\"))" &&
             python3 -m unittest discover -s tests -v'
+      - name: Check fork package selection and source manifest
+        run: |
+          docker run --rm -e RESEARCH_GARLIO_VARIANT=fork \
+            -e RESEARCH_FORK_SOURCE=/repo -v "$PWD:/repo:ro" \
+            radar-point-lio-ros:phase0-gpt bash -c '
+              test "$(rospack find garlio)" = /opt/research/fork_ws/src/garlio &&
+              python3 scripts/prepare_smoke_config.py garlio_gpt --output /tmp/garlio_gpt.yaml &&
+              PYTHONPATH=scripts python3 -c "from garlio_source import runtime_source; print(runtime_source(\"garlio_gpt\"))"'
       - name: Build Python 3.11 analysis environment
         run: |
           set -o pipefail

@@ -1,8 +1,10 @@
 /catkin_ws/
+/fork_ws/
 /third_party/
 /results/
 /build_logs/
 /source-manifest.json
+/fork-source-manifest.json
 /configs/generated/
 __pycache__/
 *.pyc

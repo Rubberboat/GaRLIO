@@ -13,8 +13,8 @@ RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/ros*.sources
     && python3 -m pip install --no-cache-dir catkin-tools==0.9.5
 
 WORKDIR /opt/research
-COPY sources.lock.json ./
-COPY scripts/bootstrap_sources.py scripts/bootstrap_sources.py
+COPY research_ws_gpt/sources.lock.json ./
+COPY research_ws_gpt/scripts/bootstrap_sources.py scripts/bootstrap_sources.py
 RUN python3 scripts/bootstrap_sources.py
 ARG BUILD_JOBS=2
 RUN cmake -S third_party/Livox-SDK -B /tmp/livox-build -DCMAKE_BUILD_TYPE=Release \
@@ -23,22 +23,42 @@ RUN cmake -S third_party/Livox-SDK -B /tmp/livox-build -DCMAKE_BUILD_TYPE=Releas
     && test -f /usr/local/lib/liblivox_sdk_static.a
 # Keep the upstream CMakeLists untouched (some force Debug with -O3).
 # Isolated catkin builds also avoid cross-package CMake target collisions.
+# FAST-LIO does not order its mapping target after Pose6D generation; generate
+# messages first to avoid the missing-header failure observed in Linux CI.
 RUN source /opt/ros/noetic/setup.bash \
     && cd catkin_ws \
     && catkin config --extend /opt/ros/noetic --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && catkin build livox_ros_driver --no-status --jobs "${BUILD_JOBS}" \
-    && catkin build garlio fast_lio point_lio --no-status --jobs "${BUILD_JOBS}" \
+    && catkin build fast_lio --no-deps --no-status --jobs "${BUILD_JOBS}" --make-args fast_lio_generate_messages \
+    && catkin build garlio fast_lio point_lio --no-status --jobs "${BUILD_JOBS}" --make-args all \
     && test -x devel/lib/garlio/cloudProcess \
     && test -x devel/lib/garlio/lidarMapping \
     && test -x devel/lib/fast_lio/fastlio_mapping \
     && test -x devel/lib/point_lio/pointlio_mapping
-COPY . /opt/research
+COPY research_ws_gpt/ /opt/research/
 RUN python3 scripts/bootstrap_sources.py --verify-only \
     && mkdir -p catkin_ws/src/Point-LIO/Log catkin_ws/src/Point-LIO/PCD \
                 catkin_ws/src/FAST_LIO/Log catkin_ws/src/FAST_LIO/PCD \
     && dpkg-query -W > /opt/research/build-packages.txt \
     && python3 -m pip freeze > /opt/research/build-python.txt
 ARG RESEARCH_GIT_COMMIT=unknown
+# The editable fork is a separate overlay. Both packages keep the upstream
+# name "garlio"; only the explicitly selected environment exposes the fork.
+# The Docker build context must be the repository root, not research_ws_gpt.
+COPY CMakeLists.txt package.xml LICENSE /opt/research/fork_ws/src/garlio/
+COPY src/ /opt/research/fork_ws/src/garlio/src/
+COPY include/ /opt/research/fork_ws/src/garlio/include/
+COPY config/ /opt/research/fork_ws/src/garlio/config/
+COPY launch/ /opt/research/fork_ws/src/garlio/launch/
+COPY rviz_cfg/ /opt/research/fork_ws/src/garlio/rviz_cfg/
+RUN python3 scripts/garlio_source.py --package fork_ws/src/garlio \
+      --output fork-source-manifest.json --commit "${RESEARCH_GIT_COMMIT}" \
+    && source /opt/research/catkin_ws/devel/setup.bash \
+    && cd fork_ws \
+    && catkin config --extend /opt/research/catkin_ws/devel --cmake-args -DCMAKE_BUILD_TYPE=Release \
+    && catkin build garlio --no-status --jobs "${BUILD_JOBS}" \
+    && test -x devel/lib/garlio/cloudProcess \
+    && test -x devel/lib/garlio/lidarMapping
 ENV RESEARCH_IMAGE_COMMIT=${RESEARCH_GIT_COMMIT}
 LABEL org.opencontainers.image.revision=${RESEARCH_GIT_COMMIT}
 ENV MPLBACKEND=Agg

@@ -1,0 +1,30 @@
+# 원본 기능의 목적과 변경 근거
+
+2026-10-20. 논문은 [GaRLIO arXiv v1](https://arxiv.org/html/2502.07703v1), 코드는 `ff4dfefad2cbd3333824c518d5652f1bf9a5039b`를 대조했다. 아래 목적은 논문 설명이며 우리 환경의 성능 검증이 아니다.
+
+| 유지할 기능 | 도입 이유·의존성 | 논문 근거 | 구현 위치 |
+|---|---|---|---|
+| 레이더 시각 기준 sweep·이전 스캔 보완 | 센서 종료 시각을 맞추고 잘린 FOV를 보완 | [IV-A](https://arxiv.org/html/2502.07703v1#S4.SS1) | `src/lidarMapping.cpp`: `sync_messages()`, `Measures.lidar_temp` |
+| 레이더 기반 동적 LiDAR 제거 | 움직이는 관측의 영향을 줄임. XY 비교는 레이더 높이 불확실성·희소성에 대응 | [IV-B, 식 7](https://arxiv.org/html/2502.07703v1#S4.SS2) | 같은 파일 `dynamic remove` 구간; `src/radar_ego_velocity_estimator.cpp` |
+| 점별 Doppler·이상치 가중 | 직접 속도 관측을 융합하고 잔여 이상치의 영향을 줄임 | [IV-C2, 식 10–11](https://arxiv.org/html/2502.07703v1#S4.SS3.SSS2) | `processIESKF()`: `vel_residual`, `vel_cov`, 레버암·bias 항 |
+| 속도 기반 중력·2단계 갱신 | 갱신된 속도와 IMU 적분으로 중력을 추정하고 roll/pitch·수직 드리프트를 보정 | [IV-D, 식 12–15](https://arxiv.org/html/2502.07703v1#S4.SS4) | `calculate_gravity()`, `gravity_cal`, `gravity_world`, `processIESKF(true, false)` |
+
+논문의 loop2/loop3 ablation에서는 속도 제약 없이 중력 제약을 사용했을 때 악화가 관찰됐다. **두 기능을 독립적으로 삭제해도 된다는 근거가 아니다.** 동적 제거 효과도 장면에 따라 달라진다. [V-E, Table IV](https://arxiv.org/html/2502.07703v1#S5.SS5)
+
+## 코드 대조에서 남긴 확인 사항
+
+다음은 **코드에서 확인됨**이며, 이번 작업에서 알고리즘을 바꾼 목록이 아니다.
+
+- `src/lidarMapping.cpp:600`은 레이더 시각에 맞춰 버퍼를 소비한다. 레이더 대기 조건을 없애면 측정 구간과 뒤의 적분 구간도 달라지므로 단순한 fallback 수정으로 취급하지 않는다.
+- `src/lidarMapping.cpp:1560` 부근은 이전 LiDAR 점을 현재 body frame으로 변환해 붙인다. 이전 스캔 저장을 “중복 누적”이라고 가정해 삭제하지 않는다.
+- `src/lidarMapping.cpp:1648` 이후는 XY 반경 이웃과 공분산 거리를 계산하지만, 최종 제거는 `pointNKNMahalnobisDistance == 100` sentinel 여부를 사용한다. 식 7의 임계값 방식과 구현을 동일하다고 보고하지 않는다. 차이의 의도·영향은 미확인이다.
+- `src/lidarMapping.cpp:1087`의 중력 방향 차이 gate, `1737` 부근의 속도 방향 검사·재갱신, 중력 잔차의 실제 Jacobian 블록은 별도로 검토할 사항이다. 논문의 축약 설명만 보고 불필요하다고 단정하지 않는다.
+- `include/filter_state.hpp`의 실제 `StateGroup`에는 외부 보정과 S2 중력 관련 상태가 있다. 논문 식 1의 상태 표기나 주석 처리된 `GlobalState`를 현재 실행 상태와 혼동하지 않는다.
+
+## 변경할 때 남길 기록
+
+각 변경은 해당 논문 절/식, 실제 코드 경로, 해결할 실패 사례, 유지할 의존성, 변경 가설, 검증 결과를 진행 기록에 남긴다. 논문과 다른 점은 미확인 차이로 표시하고, 근거 없이 수정하지 않는다.
+
+검증은 빌드 → 수치·회귀 검사 → 같은 설정의 bag 비교 → 기능별 ablation 순서로 구분한다. 새 residual/Jacobian은 수치 검증을 포함한다. 기존 기능 OFF는 비교 실험이며 기본 기능 제거와 구별한다. 데이터가 없으면 성능·필요성 판정은 보류하고 원본 기능을 유지한다.
+
+이번 변경에서는 루트 C++·헤더·기본 config·launch·빌드 정의가 기준 SHA와 동일함을 Git diff와 소스 hash로 확인했다. 바뀐 부분은 연구 지침, Docker 빌드 공간, 실험 실행·기록 도구다.

@@ -2,6 +2,8 @@
 
 현재 작업 위치: [`Rubberboat/GaRLIO`, `codex/radar-point-lio-phase0-gpt`](https://github.com/Rubberboat/GaRLIO/tree/codex/radar-point-lio-phase0-gpt). 아래 기존 JURLIO 링크·커밋·CI 결과는 이식 전 이력이다.
 
+현재 개발 방향은 **GaRLIO 기반 확장**이다. 최신 작업은 문서 끝의 “GaRLIO fork 기반 확장으로 전환”을 확인한다. 이전 Point-LIO 기반 명세는 `point_lio_plan_original.md`에 보관했고 현재 지침은 `../CLAUDE.md`다.
+
 ## 2026-10-20 — Phase 0 구현, CHECKPOINT 0 검증 대기
 
 사용자 요청: 첨부 연구 계획을 그대로 수행하고 `Rubberboat/jurlio`에 새 브랜치로 업로드. 현재 작업 브랜치는 `codex/radar-point-lio-phase0-gpt`, 원문은 `CLAUDE.md`로 보존했다. 기존 JURLIO와 구분해 `research_ws_gpt/`에서 작업한다.
@@ -60,3 +62,25 @@
 - **실행으로 확인됨:** 대상 저장소에서 기존 테스트 18개, compileall, shell 구문 검사, diff 공백 검사 통과. 이식한 실행 코드·설정·workflow는 원본 브랜치와 바이트 단위로 같고, 대상의 기존 파일은 README 안내 추가 외에 변경되지 않았음을 비교했다.
 - 이식 커밋 `d208ac05b6445457b1e1022c1b21f9e67f6763f2`를 대상의 동일한 이름의 GPT 브랜치에 push했고, 원격 `main`이 `ff4dfef`로 유지됨을 확인했다.
 - [GaRLIO 저장소 CI](https://github.com/Rubberboat/GaRLIO/actions/runs/39373898864)는 정상 시작되었고 Linux `harness` job(18개 테스트)이 통과했다. 이 기록 시점에는 `images` job의 ROS 빌드가 진행 중이다. 이식 전 JURLIO에서 발생했던 계정 결제/한도 차단은 이 실행에서는 발생하지 않았다. 전체 빌드 성공으로 기록하지 않는다.
+
+## 2026-10-20 — GaRLIO fork 기반 확장으로 전환
+
+사용자 요청: `Rubberboat/GaRLIO` fork에서 GaRLIO를 기반으로 기능을 더해 개선한다. 추가 지시: 논문에서 기능을 넣은 이유를 계속 확인하며, 이유가 있는 기능을 근거 없이 없애지 않는다.
+
+구현·결정:
+
+- 개선 대상은 루트 GaRLIO 코드다. Point-LIO와 FAST-LIO는 비교군으로 유지한다. 현재 `CLAUDE.md`의 연구 질문·단계·디렉터리 구성을 이에 맞췄고, 이전 명세는 바이트 단위로 보존했다.
+- `AGENTS.md`와 `docs/design_rationale.md`에 논문 목적·식·ablation 및 실제 구현 대조 원칙을 기록했다. 논문 IV-A~D, V-E를 읽고 주요 기능의 이유와 의존성을 확인했다. 논문과 다른 sentinel 기반 제거·추가 gate·상태 표현 등은 미확인 차이로 기록했으며 알고리즘을 변경하지 않았다.
+- 루트 C++/헤더/기본 config/launch/CMake/package는 `ff4dfef`와 동일하다. 현재 변경은 향후 기능 추가를 위한 빌드·실험 구조다.
+- ROS 이미지는 저장소 루트 컨텍스트에서 비교 원본 `catkin_ws`와 루트 fork의 `fork_ws` overlay를 빌드한다. 기존 ROS 패키지 이름을 유지하며 실험 이름만 `garlio`/`garlio_gpt`로 구별한다.
+- runner에 fork 모드를 추가했다. 실제 ROS package 경로와 원본 SHA/clean 상태, fork의 파일별 hash·전체 hash를 확인한다. 호스트 코드와 빌드 입력이 다르면 재빌드를 요구하며, 선택 소스를 실행 메타데이터에 남긴다.
+- CI가 루트 소스·설정 변경에도 실행되며 두 환경의 package 선택·manifest 검사를 수행하도록 변경했다.
+- 기존 CI `39373898864`의 최종 실패를 확인했다. GaRLIO 빌드는 통과했으나 FAST-LIO가 `fast_lio/Pose6D.h` 누락으로 실패했고 Point-LIO는 abandoned였다. 원본 CMake를 패치하지 않고 메시지 target을 먼저 빌드하도록 Docker 순서를 수정했다. 수정 후 전체 Linux 결과는 아래에 별도로 기록한다.
+
+검증:
+
+- **실행으로 확인됨:** 로컬 Python 테스트 28개 통과. 최초 sandbox 실행에서는 기존 포트 bind/프로세스 조회 검사가 권한 제한으로 실패했으며, 허용된 실행으로 전체 재검증했다.
+- **실행으로 확인됨:** Python compileall(임시 cache 경로), shell 구문, workflow YAML 파싱, `git diff --check` 통과.
+- **실행으로 확인됨:** 현재 fork와 기존 다운로드 원본의 package 파일 hash 및 smoke 설정 일치. wrapper의 세 모드별 이미지·환경 인자 확인. 이전 명세가 당시 HEAD와 바이트 단위로 같음을 확인했다.
+- 현재 호스트에 Docker/ROS와 실제 NTU bag이 없어 로컬 ROS 빌드·실데이터 재생은 실행하지 않았다. 궤적 동일성·정확도·추가 알고리즘 효과는 미검증이다.
+- Phase 1 이후의 실험이나 기존 기능 삭제는 수행하지 않았다.

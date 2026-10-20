@@ -16,11 +16,13 @@ import sys
 import threading
 import time
 import xmlrpc.client
+from garlio_source import GARLIO_METHODS, runtime_source
 
 ROOT = Path(__file__).resolve().parents[1]
-ODOMETRY = {"point_lio": "/aft_mapped_to_init", "fast_lio": "/Odometry", "garlio": "/aft_mapped_to_init"}
+ODOMETRY = {"point_lio": "/aft_mapped_to_init", "fast_lio": "/Odometry",
+            "garlio": "/aft_mapped_to_init", "garlio_gpt": "/aft_mapped_to_init"}
 NODES = {"point_lio": ["/laserMapping"], "fast_lio": ["/laserMapping"],
-         "garlio": ["/pointProcess", "/lidarMapping"]}
+         "garlio": ["/pointProcess", "/lidarMapping"], "garlio_gpt": ["/pointProcess", "/lidarMapping"]}
 
 
 def save_json(path, data):
@@ -47,14 +49,14 @@ def inspect_bag(path, method, config, start, duration):
     topics = {config["common"]["lid_topic"]: "livox_ros_driver/CustomMsg",
               config["common"]["imu_topic"]: "sensor_msgs/Imu"}
     lidar_type = config["preprocess"]["lidar_type"]
-    if lidar_type != (0 if method == "garlio" else 1):
+    if lidar_type != (0 if method in GARLIO_METHODS else 1):
         raise ValueError("Phase 0 runner supports Livox Horizon CustomMsg only")
-    if method == "garlio":
+    if method in GARLIO_METHODS:
         radar_type = config["preprocess"]["radar_type"]
         if radar_type not in (0, 1):
             raise ValueError("Unsupported radar_type")
         topics[config["common"]["radar_topic"]] = ("sensor_msgs/PointCloud", "sensor_msgs/PointCloud2")[radar_type]
-    if len(topics) != (3 if method == "garlio" else 2):
+    if len(topics) != (3 if method in GARLIO_METHODS else 2):
         raise ValueError("Input topic names must be distinct")
     if any(not name.startswith("/") for name in topics):
         raise ValueError("Use absolute input topic names")
@@ -158,7 +160,7 @@ def sample_cpu(launch_pid, path, done):
 def validate_coverage(stats, preflight, config, method, max_tail_lag):
     if stats.get("error") or stats["poses"] < 5:
         raise RuntimeError(stats.get("error") or "Fewer than five output poses")
-    source = config["common"]["radar_topic" if method == "garlio" else "lid_topic"]
+    source = config["common"]["radar_topic" if method in GARLIO_METHODS else "lid_topic"]
     times = preflight["topics"][source]
     start_lag = (stats["first_stamp_ns"] - times["first_header_ns"]) / 1e9
     tail_lag = (times["last_header_ns"] - stats["last_stamp_ns"]) / 1e9
@@ -172,8 +174,8 @@ def run_once(args, run_dir, preflight, provenance):
     run_dir.mkdir(parents=True, exist_ok=False)
     original = args.config.read_text()
     config = yaml.safe_load(original)
-    # Override only the documented path exception, without editing upstream.
-    if args.method == "garlio":
+    # Give both baseline and fork their own writable trajectory directory.
+    if args.method in GARLIO_METHODS:
         config.setdefault("pcd_save", {})["traj_save_path"] = str(run_dir)
     effective = yaml.safe_dump(config, sort_keys=False)
     config_path = run_dir / "config.effective.yaml"
@@ -210,7 +212,8 @@ def run_once(args, run_dir, preflight, provenance):
         api = xmlrpc.client.ServerProxy(env["ROS_MASTER_URI"])
         wait_for(lambda: api.getPid("/research_runner")[0] == 1, processes, 30, "ROS master startup timed out")
         api.setParam("/research_runner", "/use_sim_time", True)
-        launch = start("launch", ["roslaunch", str(ROOT / "launch" / (args.method + ".launch")), "config:=" + str(config_path)])
+        launch_method = "garlio" if args.method in GARLIO_METHODS else args.method
+        launch = start("launch", ["roslaunch", str(ROOT / "launch" / (launch_method + ".launch")), "config:=" + str(config_path)])
         start("recorder", [sys.executable, str(ROOT / "scripts/record_traj.py"), "--topic", ODOMETRY[args.method],
                            "--output", str(run_dir / "trajectory.tum"), "--stats", str(run_dir / "recorder.json")])
 
@@ -220,7 +223,7 @@ def run_once(args, run_dir, preflight, provenance):
             sensor_ready = all(subscribers.get(topic) for topic in preflight["topics"])
             odometry_ready = (publishers.get(ODOMETRY[args.method]) and
                               "/trajectory_recorder" in subscribers.get(ODOMETRY[args.method], []))
-            internal = args.method != "garlio" or all(subscribers.get(topic) for topic in
+            internal = args.method not in GARLIO_METHODS or all(subscribers.get(topic) for topic in
                        ("/laser_cloud_surf", "/filtered_points", config["common"].get("topic_outlier_pc2", "/eagle_data/outlier_pc2")))
             return code == 1 and sensor_ready and odometry_ready and internal
 
@@ -318,6 +321,7 @@ def main():
     base = args.output / args.method / args.sequence
     if base.exists():
         p.error("Output already exists; use a new experiment ID to avoid overwriting runs")
+    selected_source = runtime_source(args.method)
     print("Preflight: reading sensor headers and hashing bag (once for all repeats).", flush=True)
     preflight = inspect_bag(args.bag, args.method, config, args.start, args.duration)
     commit = os.environ.get("RESEARCH_GIT_COMMIT")
@@ -336,6 +340,7 @@ def main():
     provenance = {"git_commit": commit, "git_status": dirty,
                   "image_git_commit": os.environ.get("RESEARCH_IMAGE_COMMIT", "unknown"),
                   "upstream_sources": json.loads(manifest.read_text()),
+                  "garlio_source": selected_source,
                   "bag": str(args.bag), "bag_sha256": digest(args.bag), "bag_bytes": args.bag.stat().st_size,
                   "machine": {"platform": platform.platform(), "machine": platform.machine(),
                               "processor": platform.processor(), "cpu_logical": os.cpu_count(),
