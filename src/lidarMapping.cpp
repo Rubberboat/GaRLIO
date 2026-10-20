@@ -198,6 +198,7 @@ std::vector<PointVector> nearestPointsSurf;
 bool EKF_converged_flag = false, extrinsic_est_en = true;
 int effct_feat_num = 0;
 int NUM_MAX_ITERATIONS = 0;
+int MAX_ITERATIONS_CFG = 4;
 pcl::PointCloud<PointType>::Ptr laserCloudOri(new pcl::PointCloud<PointType>());
 pcl::PointCloud<PointType>::Ptr coeffSel(new pcl::PointCloud<PointType>());
 std::vector<double> lidar_weight;
@@ -874,16 +875,16 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
 	pcl::PointCloud<RadarPointCloudType>::Ptr radarCloudBody(new pcl::PointCloud<RadarPointCloudType>(*(Measures.radar)));
 
 	if(gravity_update) NUM_MAX_ITERATIONS = 1;
-	else NUM_MAX_ITERATIONS = 4;
+	else NUM_MAX_ITERATIONS = MAX_ITERATIONS_CFG;
 	for (int iterCount = 0; iterCount < NUM_MAX_ITERATIONS; iterCount++) {
 
 		if(!gravity_update){
 			laserCloudOri->clear();
 			coeffSel->clear();
+			lidar_weight.clear();
 			/** closest surface search and residual computation **/
 			#ifdef MP_EN
-				omp_set_num_threads(MP_PROC_NUM);
-				#pragma omp parallel for
+				#pragma omp parallel for reduction(max : max_pt_range)
 			#endif
 
 			for (int i = 0; i < feats_down_size; i++) {
@@ -1449,7 +1450,7 @@ int main(int argc, char **argv)
 	std::string traj_save_path;
 
 	nh.param<std::string>("common/imu_topic", imu_topic, "/imu/data");
-	nh.param<int>("mapping/max_iteration", NUM_MAX_ITERATIONS, 4);
+	nh.param<int>("mapping/max_iteration", MAX_ITERATIONS_CFG, 4);
 	nh.param<double>("mapping/cube_side_length", cube_len, 200);
 	nh.param<double>("mapping/filter_size_surf", filter_size_surf, 0.5);
     nh.param<double>("mapping/filter_size_map", filter_size_map, 0.5);	
@@ -1487,6 +1488,10 @@ int main(int argc, char **argv)
 	std::ofstream fout(result_path, std::ios::out);
 	fout.close();
 
+	if (MAX_ITERATIONS_CFG < 1) MAX_ITERATIONS_CFG = 1;
+#ifdef MP_EN
+	omp_set_num_threads(MP_PROC_NUM);
+#endif
 	downSizeFilterSurf.setLeafSize(filter_size_surf, filter_size_surf, filter_size_surf);
 	initializeParams();
 
