@@ -1,0 +1,47 @@
+name: Radar Point-LIO Phase 0 gpt
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'research_ws_gpt/**'
+      - '.github/workflows/research-phase0-gpt.yml'
+permissions:
+  contents: read
+jobs:
+  harness:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install PyYAML==6.0.3 psutil==7.0.0
+      - run: python3 -m unittest discover -s research_ws_gpt/tests -v
+  images:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build pinned Noetic sources
+        run: |
+          mkdir -p research_ws_gpt/build_logs
+          set -o pipefail
+          docker build --build-arg BUILD_JOBS=2 --build-arg RESEARCH_GIT_COMMIT="$GITHUB_SHA" \
+            -f research_ws_gpt/docker/ros/Dockerfile -t radar-point-lio-ros:phase0-gpt research_ws_gpt \
+            2>&1 | tee research_ws_gpt/build_logs/ros-build.log
+      - name: Check ROS package discovery and config preparation
+        run: |
+          docker run --rm radar-point-lio-ros:phase0-gpt bash -c '
+            rospack find garlio && rospack find fast_lio && rospack find point_lio &&
+            python3 scripts/prepare_smoke_config.py garlio --output /tmp/garlio.yaml &&
+            python3 scripts/prepare_smoke_config.py fast_lio --output /tmp/fast_lio.yaml &&
+            python3 scripts/prepare_smoke_config.py point_lio --output /tmp/point_lio.yaml &&
+            python3 -m unittest discover -s tests -v'
+      - name: Build Python 3.11 analysis environment
+        run: |
+          set -o pipefail
+          docker build -f research_ws_gpt/docker/analysis/Dockerfile -t radar-point-lio-analysis:phase0-gpt research_ws_gpt \
+            2>&1 | tee research_ws_gpt/build_logs/analysis-build.log
+          docker run --rm radar-point-lio-analysis:phase0-gpt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: research-phase0-build-logs-gpt
+          path: research_ws_gpt/build_logs/

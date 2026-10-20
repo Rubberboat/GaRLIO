@@ -1,0 +1,9 @@
+/catkin_ws/
+/third_party/
+/results/
+/build_logs/
+/source-manifest.json
+/configs/generated/
+__pycache__/
+*.pyc
+.venv/

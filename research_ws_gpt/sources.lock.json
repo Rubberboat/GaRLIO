@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {"name": "Livox-SDK", "url": "https://github.com/Livox-SDK/Livox-SDK.git", "commit": "9306596a2bf15c1343bc023b497465ed0a32909d", "path": "third_party/Livox-SDK"},
+    {"name": "livox_ros_driver", "url": "https://github.com/Livox-SDK/livox_ros_driver.git", "commit": "3d240d5666129e1a3052e78ee8487a04b08fdda3", "path": "catkin_ws/src/livox_ros_driver"},
+    {"name": "GaRLIO", "url": "https://github.com/ChiyunNoh/GaRLIO.git", "commit": "ff4dfefad2cbd3333824c518d5652f1bf9a5039b", "path": "catkin_ws/src/garlio"},
+    {"name": "FAST_LIO", "url": "https://github.com/hku-mars/FAST_LIO.git", "commit": "7cc4175de6f8ba2edf34bab02a42195b141027e9", "path": "catkin_ws/src/FAST_LIO"},
+    {"name": "Point-LIO", "url": "https://github.com/hku-mars/Point-LIO.git", "commit": "4b86a469eb5572e70ed575af25b5f15dd06e8e3c", "path": "catkin_ws/src/Point-LIO"}
+  ]
+}
