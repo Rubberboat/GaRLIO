@@ -58,3 +58,5 @@
 - `gpt` 접미사를 유지하고 새 저장소 clone 명령과 안내 링크를 갱신했다. 바깥 catkin 검색에서 중첩 연구 소스를 제외하도록 연구 폴더에 `CATKIN_IGNORE`를 추가했다. 컨테이너에서는 `catkin_ws/src`를 명시적으로 빌드한다.
 - 호환성 판정은 소스·패키지 구성과 로컬 실행 도구에 한정한다. Docker/ROS와 NTU bag 부재로 전체 ROS 빌드·재생은 여전히 미검증이며, Phase 0 체크포인트 상태는 바뀌지 않는다.
 - **실행으로 확인됨:** 대상 저장소에서 기존 테스트 18개, compileall, shell 구문 검사, diff 공백 검사 통과. 이식한 실행 코드·설정·workflow는 원본 브랜치와 바이트 단위로 같고, 대상의 기존 파일은 README 안내 추가 외에 변경되지 않았음을 비교했다.
+- 이식 커밋 `d208ac05b6445457b1e1022c1b21f9e67f6763f2`를 대상의 동일한 이름의 GPT 브랜치에 push했고, 원격 `main`이 `ff4dfef`로 유지됨을 확인했다.
+- [GaRLIO 저장소 CI](https://github.com/Rubberboat/GaRLIO/actions/runs/39373898864)는 정상 시작되었고 Linux `harness` job(18개 테스트)이 통과했다. 이 기록 시점에는 `images` job의 ROS 빌드가 진행 중이다. 이식 전 JURLIO에서 발생했던 계정 결제/한도 차단은 이 실행에서는 발생하지 않았다. 전체 빌드 성공으로 기록하지 않는다.
