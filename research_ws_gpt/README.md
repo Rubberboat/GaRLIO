@@ -12,7 +12,9 @@ GaRLIO의 기존 처리·필터 구조에 개선사항을 추가하고 검증하
 
 원본은 `/opt/research/catkin_ws`, fork는 `/opt/research/fork_ws`에서 각각 빌드한다. fork를 선택한 컨테이너만 해당 overlay를 로드한다. runner는 ROS가 찾은 실제 패키지를 검사하므로 원본/개선본 이름을 혼용하면 재생 전에 실패한다. `garlio_gpt`는 fork 실행을 뜻하며 성능 개선이 검증됐다는 뜻이 아니다.
 
-**현재는 환경·실행 도구 단계다. [커밋 `8f0427b`의 Linux CI](https://github.com/Rubberboat/GaRLIO/actions/runs/39395984431)에서 원본 세 방법과 fork의 ROS 빌드, 패키지 선택·소스 확인, 테스트 28개, 분석 이미지 import 검사가 통과했다. NTU bag 재생·궤적 동일성·정확도는 아직 미검증이며 Phase 1 이후 실험은 미실행이다.**
+**2026-10-21 실제 실행:** GaRLIO와 JURLIO의 합성 센서 3회 반복 및 SNAIL `20231105/data6` 약 126초 비교를 수행했다. GaRLIO·JURLIO baseline·robust는 완주했고 dynamic은 1배속·0.5배속 모두 실패했다. [수치·실패 원인·처리 구조·재실행 방법](docs/sensor_comparison_2026-10-21.md)을 확인한다. GaRLIO 알고리즘 변경은 없으며 NTU/Point-LIO 비교와 연구 계획의 전체 Phase 1은 미완료다.
+
+[커밋 `8f0427b`의 Linux CI](https://github.com/Rubberboat/GaRLIO/actions/runs/39395984431)에서는 원본 세 방법과 fork의 ROS 빌드, 패키지 선택·소스 확인, 당시 테스트 28개, 분석 이미지 import 검사가 통과했다. 현재 harness 테스트는 31개다.
 
 알고리즘 변경 전 논문의 기능 도입 이유·의존성과 실제 코드를 대조한다. [설계 근거 기록](docs/design_rationale.md)에 핵심 기능의 논문 절과 코드 위치, 아직 해석하지 않은 차이를 정리했다. 더 나은 대안에는 교체·재설계도 허용하며, push 전에 변경 내용·이유·검증 범위를 설명한다. ablation용 OFF와 설계 변경은 구별한다.
 

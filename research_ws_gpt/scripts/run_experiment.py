@@ -46,11 +46,12 @@ def utc_now():
 def inspect_bag(path, method, config, start, duration):
     """Stream header times; check required inputs within the requested playback window."""
     import rosbag
-    topics = {config["common"]["lid_topic"]: "livox_ros_driver/CustomMsg",
-              config["common"]["imu_topic"]: "sensor_msgs/Imu"}
     lidar_type = config["preprocess"]["lidar_type"]
-    if lidar_type != (0 if method in GARLIO_METHODS else 1):
-        raise ValueError("Phase 0 runner supports Livox Horizon CustomMsg only")
+    hesai = method in GARLIO_METHODS and lidar_type == 1
+    if not hesai and lidar_type != (0 if method in GARLIO_METHODS else 1):
+        raise ValueError("Supported inputs: Livox Horizon; GaRLIO also supports Hesai PointCloud2")
+    topics = {config["common"]["lid_topic"]: ("sensor_msgs/PointCloud2" if hesai else "livox_ros_driver/CustomMsg"),
+              config["common"]["imu_topic"]: "sensor_msgs/Imu"}
     if method in GARLIO_METHODS:
         radar_type = config["preprocess"]["radar_type"]
         if radar_type not in (0, 1):
@@ -75,6 +76,16 @@ def inspect_bag(path, method, config, start, duration):
         stats = {topic: {"count": 0, "first_header_ns": None, "last_header_ns": None} for topic in topics}
         for topic, msg, _ in bag.read_messages(topics=list(topics), start_time=genpy.Time.from_sec(begin), end_time=genpy.Time.from_sec(end)):
             row = stats[topic]
+            if hesai and topic == config["common"]["lid_topic"]:
+                # Match GaRLIO's registered PCL Hesai point layout, not only the
+                # ROS envelope. timestamp is an absolute point time.
+                fields = {field.name: (field.datatype, field.count) for field in msg.fields}
+                required = {name: (7, 1) for name in ("x", "y", "z", "intensity")}
+                required.update(timestamp=(8, 1), ring=(4, 1))
+                if any(fields.get(name) != spec for name, spec in required.items()):
+                    raise ValueError("Hesai PointCloud2 needs float32 xyz/intensity, float64 timestamp and uint16 ring")
+                if msg.width * msg.height == 0:
+                    raise ValueError("Empty Hesai PointCloud2 frame")
             stamp = msg.header.stamp.to_nsec()
             if stamp <= 0 or (row["last_header_ns"] is not None and stamp <= row["last_header_ns"]):
                 raise ValueError("Zero/non-increasing sensor header timestamp on " + topic)
@@ -250,6 +261,7 @@ def run_once(args, run_dir, preflight, provenance):
         if args.duration is not None:
             command += ["--duration", str(args.duration)]
         command += [str(args.bag), "--topics", *preflight["topics"]]
+        meta["replay_started_unix"] = time.time()
         player = start("player", command)
         deadline = time.monotonic() + preflight["duration"] / args.rate + 120
         while player.poll() is None:
@@ -259,6 +271,7 @@ def run_once(args, run_dir, preflight, provenance):
             time.sleep(0.5)
         if player.returncode != 0:
             raise RuntimeError(f"Bag player failed ({player.returncode})")
+        meta["replay_finished_unix"] = time.time()
         deadline = time.monotonic() + args.drain_seconds
         while time.monotonic() < deadline:
             healthy()

@@ -108,11 +108,12 @@ class CoverageTests(unittest.TestCase):
 
 
 class PreflightTests(unittest.TestCase):
-    def inspect(self, method="garlio", radar=True, duplicate=False, wrong_type=False):
+    def inspect(self, method="garlio", radar=True, duplicate=False, wrong_type=False,
+                hesai=False, bad_field=False, empty=False):
         types_ = {"/lidar": "livox_ros_driver/CustomMsg", "/imu": "sensor_msgs/Imu"}
         if radar:
             types_["/radar"] = "sensor_msgs/PointCloud"
-        if wrong_type:
+        if wrong_type or hesai:
             types_["/lidar"] = "sensor_msgs/PointCloud2"
 
         class Bag:
@@ -127,12 +128,19 @@ class PreflightTests(unittest.TestCase):
                 for topic in topics:
                     for nsec in (10**9, 10**9 if duplicate else 2*10**9):
                         msg = types.SimpleNamespace(header=types.SimpleNamespace(stamp=types.SimpleNamespace(to_nsec=lambda n=nsec: n)))
+                        if hesai and topic == "/lidar":
+                            specs = [(n, 7) for n in ("x", "y", "z", "intensity")]
+                            specs += [("timestamp", 7 if bad_field else 8), ("ring", 4)]
+                            msg.fields = [types.SimpleNamespace(name=n, datatype=d, count=1) for n, d in specs]
+                            msg.width, msg.height = (0 if empty else 100), 1
                         yield topic, msg, None
 
         modules = {"rosbag": types.SimpleNamespace(Bag=Bag),
                    "genpy": types.SimpleNamespace(Time=types.SimpleNamespace(from_sec=lambda x: x))}
         config = {"common": {"lid_topic": "/lidar", "imu_topic": "/imu", "radar_topic": "/radar"},
                   "preprocess": {"lidar_type": 0 if method in runner.GARLIO_METHODS else 1, "radar_type": 0}}
+        if hesai:
+            config["preprocess"]["lidar_type"] = 1
         with patch.dict(sys.modules, modules):
             return runner.inspect_bag(Path("fake.bag"), method, config, 0, 3)
 
@@ -155,6 +163,14 @@ class PreflightTests(unittest.TestCase):
     def test_sensor_time_reset_fails(self):
         with self.assertRaisesRegex(ValueError, "timestamp"):
             self.inspect(duplicate=True)
+
+    def test_hesai_fields_checked_for_baseline_and_fork(self):
+        for method in runner.GARLIO_METHODS:
+            self.assertEqual(self.inspect(method=method, hesai=True)["types"]["/lidar"], "sensor_msgs/PointCloud2")
+            with self.assertRaisesRegex(ValueError, "float64 timestamp"):
+                self.inspect(method=method, hesai=True, bad_field=True)
+            with self.assertRaisesRegex(ValueError, "Empty Hesai"):
+                self.inspect(method=method, hesai=True, empty=True)
 
 
 class LifecycleTests(unittest.TestCase):
