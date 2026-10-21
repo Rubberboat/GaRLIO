@@ -117,6 +117,8 @@ std::deque<pcl::PointCloud<pcl::PointXYZ>::Ptr> radar_outlier_Buf;
 
 std::deque<PointBufferType> point_buffer;
 std::deque<sensor_msgs::ImuConstPtr> imuBuf;
+sensor_msgs::ImuConstPtr last_sweep_imu;
+bool time_consistent_sweeps = false;
 std::mutex mBuf;
 std::condition_variable sigBuf;
 
@@ -614,7 +616,8 @@ bool sync_messages(MeasureGroup &meas) {
         return false;
     }
     
-    while (point_buffer.front().timestamp >= timeBuf.front() || imuBuf.front()->header.stamp.toSec() >= timeBuf.front())
+    while (point_buffer.front().timestamp >= timeBuf.front() ||
+           ((!time_consistent_sweeps || !last_sweep_imu) && imuBuf.front()->header.stamp.toSec() >= timeBuf.front()))
     {
         timeBuf.pop_front();
         radarBuf.pop_front();
@@ -623,14 +626,20 @@ bool sync_messages(MeasureGroup &meas) {
             return false;
     }
 	
+    // Recheck after dropping startup boundaries; require a real future bracket.
+    if (time_consistent_sweeps &&
+        (point_buffer.back().timestamp <= timeBuf.front() || imuBuf.back()->header.stamp.toSec() <= timeBuf.front())) return false;
     meas.imu.clear();
+    if (time_consistent_sweeps && last_sweep_imu) meas.imu.push_back(last_sweep_imu);
 	double imu_time = imuBuf.front()->header.stamp.toSec();
 	while (!imuBuf.empty() && imu_time < timeBuf.front()) {
 		imu_time = imuBuf.front()->header.stamp.toSec();
 		if (imu_time > timeBuf.front()) break;
 		meas.imu.push_back(imuBuf.front());
+        if (time_consistent_sweeps) last_sweep_imu = imuBuf.front();
 		imuBuf.pop_front();
 	}
+    if (time_consistent_sweeps) meas.imu.push_back(imuBuf.front());
     meas.point_queue.clear();
 	double point_time = point_buffer.front().timestamp;
 	pcl::PointCloud<PointType>::Ptr cloud(new pcl::PointCloud<PointType>);
@@ -668,6 +677,10 @@ bool sync_messages(MeasureGroup &meas) {
 		point_buffer.pop_front();
 	}
 
+    if (time_consistent_sweeps) {
+        meas.lidar_end_time = timeBuf.front();
+        lidar_end_time = meas.lidar_end_time;
+    }
 	last_radar_time = timeBuf.front();
 	lidar_cloud->width = static_cast<uint32_t>(meas.point_queue.size());
     lidar_cloud->height = 1;  
@@ -727,11 +740,27 @@ void calculate_gravity(MeasureGroup &meas, double &sum_dt, V3D &delta_v, Eigen::
         auto &&head = *(it_imu);
         auto &&tail = *(it_imu + 1);
 		dt = tail->header.stamp.toSec() - head->header.stamp.toSec();
+        garlio_gpt::ImuInterval interval;
+        if (time_consistent_sweeps) {
+            if (!garlio_gpt::clippedImuInterval(head->header.stamp.toSec(), tail->header.stamp.toSec(),
+                    meas.lidar_beg_time, meas.lidar_end_time, interval)) continue;
+            dt = interval.end - interval.begin;
+        }
 		acc_0 = Eigen::Vector3d(head->linear_acceleration.x, head->linear_acceleration.y, head->linear_acceleration.z);
 		acc_1 = Eigen::Vector3d(tail->linear_acceleration.x, tail->linear_acceleration.y, tail->linear_acceleration.z);
 		gyr_0 = Eigen::Vector3d(head->angular_velocity.x, head->angular_velocity.y, head->angular_velocity.z);
 		gyr_1 = Eigen::Vector3d(tail->angular_velocity.x, tail->angular_velocity.y, tail->angular_velocity.z);
 
+        if (time_consistent_sweeps) {
+            const double span = tail->header.stamp.toSec()-head->header.stamp.toSec();
+            const double f0 = (interval.begin-head->header.stamp.toSec())/span;
+            const double f1 = (interval.end-head->header.stamp.toSec())/span;
+            const V3D raw_acc0=acc_0, raw_acc1=acc_1, raw_gyr0=gyr_0, raw_gyr1=gyr_1;
+            acc_0 = ((1-f0)*raw_acc0+f0*raw_acc1)*pImu_->acceleration_scale();
+            acc_1 = ((1-f1)*raw_acc0+f1*raw_acc1)*pImu_->acceleration_scale();
+            gyr_0 = (1-f0)*raw_gyr0+f0*raw_gyr1;
+            gyr_1 = (1-f1)*raw_gyr0+f1*raw_gyr1;
+        }
 		midPointIntegration(dt, acc_0, gyr_0, acc_1, gyr_1, 
 							delta_q, delta_v, lio_state.bias_a, lio_state.bias_g, result_delta_q, result_delta_v);
 		delta_q = result_delta_q;
@@ -1070,6 +1099,7 @@ void processIESKF(bool gravity_update=false, bool vel_update = true)
 			Eigen::Quaterniond delta_q = Eigen::Quaterniond::Identity();
 			calculate_gravity(Measures, sum_dt, delta_v, delta_q);
 
+            if (time_consistent_sweeps && !(sum_dt > 1e-6)) return;
 			Eigen::Matrix3d rotation_matrix = delta_q.toRotationMatrix(); //IMU delta rotation
 
 			current_radar_vel = lio_state.vel_end;
@@ -1440,6 +1470,8 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "lidarMapping");
 	ros::NodeHandle nh;
+    nh.param<bool>("mapping/time_consistent_sweeps", time_consistent_sweeps, false);
+    pImu_->set_time_consistent(time_consistent_sweeps);
 
 
 	std::vector<double> t_ex(3, 0.0);
@@ -1521,7 +1553,7 @@ int main(int argc, char **argv)
 
 
 	std::ofstream guard_diagnostics(traj_save_path + "/radar_guard.csv");
-    guard_diagnostics << "timestamp,refine_requested,radar_consistent,refine_applied\n";
+    guard_diagnostics << "timestamp,refine_requested,radar_consistent,refine_applied,imu_samples,imu_support_gap,sweep_duration,input_clock_lag_s\n";
     ROS_INFO("\033[1;32m---->\033[0m Mapping Started.");
 
 	Eigen::MatrixXd R_ri = T_r2i.block<3, 3>(0, 0);
@@ -1777,8 +1809,14 @@ int main(int argc, char **argv)
 				}
 				
 			}
-			guard_diagnostics << std::fixed << std::setprecision(9) << lidar_end_time << ','
-                << refine_requested << ',' << radar_consistent << ',' << refine_applied << '\n';
+            double imu_support_gap = 0;
+            for (size_t i=1; i<Measures.imu.size(); ++i)
+                imu_support_gap = std::max(imu_support_gap, Measures.imu[i]->header.stamp.toSec()-Measures.imu[i-1]->header.stamp.toSec());
+            guard_diagnostics << std::fixed << std::setprecision(9) << lidar_end_time << ','
+                << refine_requested << ',' << radar_consistent << ',' << refine_applied << ','
+                << Measures.imu.size() << ',' << imu_support_gap << ','
+                << Measures.lidar_end_time-Measures.lidar_beg_time << ','
+                << ros::Time::now().toSec()-lidar_end_time << '\n';
             bool gravity_mode = true;
 			if (gravity_mode){
 				propagate_state = lio_state;

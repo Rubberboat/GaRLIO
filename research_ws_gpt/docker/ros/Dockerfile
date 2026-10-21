@@ -53,6 +53,10 @@ COPY launch/ /opt/research/fork_ws/src/garlio/launch/
 COPY rviz_cfg/ /opt/research/fork_ws/src/garlio/rviz_cfg/
 RUN python3 scripts/garlio_source.py --package fork_ws/src/garlio \
       --output fork-source-manifest.json --commit "${RESEARCH_GIT_COMMIT}" \
+    && g++ -std=c++17 -I fork_ws/src/garlio/include tests/test_radar_velocity_guard_gpt.cpp -o /tmp/radar_guard_test \
+    && /tmp/radar_guard_test \
+    && g++ -std=c++17 -I fork_ws/src/garlio/include tests/test_imu_interval_gpt.cpp -o /tmp/imu_interval_test \
+    && /tmp/imu_interval_test \
     && source /opt/research/catkin_ws/devel/setup.bash \
     && cd fork_ws \
     && catkin config --extend /opt/research/catkin_ws/devel --cmake-args -DCMAKE_BUILD_TYPE=Release \

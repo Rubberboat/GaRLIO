@@ -1,3 +1,4 @@
+#include "imu_interval_gpt.hpp"
 #include <cmath>
 #include <math.h>
 #include <deque>
@@ -45,6 +46,9 @@ bool check_state(StateGroup &state_inout) {
 /// *************IMU Process and undistortion
 class ImuProcess {
 public:
+    void set_time_consistent(bool enabled) { time_consistent_ = enabled; }
+    double acceleration_scale() const { return G_m_s2 / mean_acc.norm(); }
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
     typedef Eigen::Matrix<double, StateGroup::DIM_OF_NOISE_, StateGroup::DIM_OF_NOISE_> processNoise;
 
@@ -84,6 +88,7 @@ private:
     V3D mean_gyr;
     V3D angvel_last;
     V3D acc_last;
+    bool time_consistent_ = false;
     double last_lidar_end_time_ = 0.0;
     int    init_iter_num = 1;
     bool   b_first_frame_ = true;
@@ -168,6 +173,8 @@ void ImuProcess::IMU_init(const MeasureGroup &meas, StateGroup &state_inout, int
     }
 
     for (const auto &imu : meas.imu) {
+        if (time_consistent_ && (imu->header.stamp.toSec() > meas.lidar_end_time ||
+                imu->header.stamp <= last_imu_->header.stamp)) continue;
         const auto &imu_acc = imu->linear_acceleration;
         const auto &gyr_acc = imu->angular_velocity;
         cur_acc << imu_acc.x, imu_acc.y, imu_acc.z;
@@ -252,7 +259,7 @@ void ImuProcess::undistort_pcl(const MeasureGroup &meas, StateGroup &state_inout
 {
     /*** add the imu of the last frame-tail to the of current frame-head ***/
     auto v_imu = meas.imu;
-    v_imu.push_front(last_imu_);
+    if (!time_consistent_) v_imu.push_front(last_imu_);
     const double &imu_beg_time = v_imu.front()->header.stamp.toSec();
     const double &imu_end_time = v_imu.back()->header.stamp.toSec();
     const double &pcl_beg_time = meas.lidar_beg_time;
@@ -286,13 +293,20 @@ void ImuProcess::undistort_pcl(const MeasureGroup &meas, StateGroup &state_inout
         auto &&tail = *(it_imu + 1);
         
         if (tail->header.stamp.toSec() < last_lidar_end_time_) continue;
+        garlio_gpt::ImuInterval interval;
+        double fraction = 0.5;
+        if (time_consistent_) {
+            if (!garlio_gpt::clippedImuInterval(head->header.stamp.toSec(), tail->header.stamp.toSec(),
+                    last_lidar_end_time_, pcl_end_time, interval)) continue;
+            fraction = interval.midpoint_fraction;
+        }
 
-        angvel_avr << 0.5 * (head->angular_velocity.x + tail->angular_velocity.x),
-                      0.5 * (head->angular_velocity.y + tail->angular_velocity.y),
-                      0.5 * (head->angular_velocity.z + tail->angular_velocity.z);
-        acc_avr    << 0.5 * (head->linear_acceleration.x + tail->linear_acceleration.x),
-                      0.5 * (head->linear_acceleration.y + tail->linear_acceleration.y),
-                      0.5 * (head->linear_acceleration.z + tail->linear_acceleration.z);
+        angvel_avr << ((1.0-fraction)*head->angular_velocity.x + fraction*tail->angular_velocity.x),
+                      ((1.0-fraction)*head->angular_velocity.y + fraction*tail->angular_velocity.y),
+                      ((1.0-fraction)*head->angular_velocity.z + fraction*tail->angular_velocity.z);
+        acc_avr    << ((1.0-fraction)*head->linear_acceleration.x + fraction*tail->linear_acceleration.x),
+                      ((1.0-fraction)*head->linear_acceleration.y + fraction*tail->linear_acceleration.y),
+                      ((1.0-fraction)*head->linear_acceleration.z + fraction*tail->linear_acceleration.z);
         
         acc_avr = acc_avr * G_m_s2 / mean_acc.norm();
 
@@ -303,20 +317,28 @@ void ImuProcess::undistort_pcl(const MeasureGroup &meas, StateGroup &state_inout
             dt = tail->header.stamp.toSec() - head->header.stamp.toSec();
         }
 
+        if (time_consistent_) dt = interval.end - interval.begin;
+
         /* propagation of IMU state*/
         Q.block<3, 3>(0, 0).diagonal() = gyr_cov;
         Q.block<3, 3>(3, 3).diagonal() = acc_cov;
         Q.block<3, 3>(6, 6).diagonal() = gyr_bias_cov;
         Q.block<3, 3>(9, 9).diagonal() = acc_bias_cov;
 
-        predict(state_inout, Q, angvel_avr, acc_avr, dt);
+        // Approximate the uncertainty of a reused measured bracket by preserving
+        // its total dt^2 driving variance under splitting. Endpoint correlations
+        // are not modeled explicitly by this discrete-noise approximation.
+        processNoise interval_Q = Q;
+        if (time_consistent_) interval_Q *=
+            (tail->header.stamp.toSec()-head->header.stamp.toSec()) / dt;
+        predict(state_inout, interval_Q, angvel_avr, acc_avr, dt);
 
         /* save the poses at each IMU measurements */
         imu_state = state_inout;
         angvel_last = angvel_avr - imu_state.bias_g;
         acc_last = imu_state.rot_end * (acc_avr - imu_state.bias_a) + imu_state.grav.vec;
 
-        double offs_t = tail->header.stamp.toSec() - pcl_beg_time;
+        double offs_t = (time_consistent_ ? interval.end : tail->header.stamp.toSec()) - pcl_beg_time;
         IMUpose.push_back(set_pose6d(offs_t, imu_state.pos_end, imu_state.vel_end, imu_state.rot_end, acc_last, angvel_last));
     }
 
@@ -327,7 +349,7 @@ void ImuProcess::undistort_pcl(const MeasureGroup &meas, StateGroup &state_inout
     else {
         dt = imu_end_time - pcl_end_time;
     }
-    predict(state_inout, Q, angvel_avr, acc_avr, dt);
+    if (!time_consistent_) predict(state_inout, Q, angvel_avr, acc_avr, dt);
     
     imu_state = state_inout;
     last_imu_ = meas.imu.back();
@@ -377,11 +399,12 @@ V3D ImuProcess::get_angvel(){
 
 void ImuProcess::Process(const MeasureGroup &meas,  StateGroup &state, pcl::PointCloud<PointType>::Ptr cur_pcl_un_)
 {
+    if (time_consistent_) cur_pcl_un_->clear();
     if (meas.imu.empty()) {
         return;
     }
     
-    ROS_ASSERT(meas.point_queue != nullptr);
+    ROS_ASSERT(!meas.point_queue.empty());
 
     if (imu_need_init_) {
         /// The very first lidar frame
@@ -389,7 +412,14 @@ void ImuProcess::Process(const MeasureGroup &meas,  StateGroup &state, pcl::Poin
 
         imu_need_init_ = true;
 
-        last_imu_ = meas.imu.back();
+        if (time_consistent_) {
+            for (const auto& imu : meas.imu)
+                if (imu->header.stamp.toSec() <= meas.lidar_end_time) last_imu_ = imu;
+        } else last_imu_ = meas.imu.back();
+        if (time_consistent_) {
+            last_lidar_end_time_ = meas.lidar_end_time;
+            acc_last.setZero();
+        }
         
         if (init_iter_num > MAX_INI_CNT) {
             imu_need_init_ = false;
