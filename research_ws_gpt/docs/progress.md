@@ -123,3 +123,11 @@
 - **검증:** JURLIO ROS 재빌드·C++ 수치 검사 7개, 최신 Python 18개, GaRLIO harness 31개 통과. 정상 합성 입력의 baseline/robust/dynamic이 완주했고 이전 결과와 눈에 띄는 차이가 없었다. 원격 CI는 이번 로컬 검사에 포함하지 않았다.
 - 상세 기록은 별도 저장소 `jurlio/docs/RECOVERY_2026-10-21.md`, 실행 명령·이미지 ID·소스 hash·로그·그래프는 부모 작업 폴더 `output/recovery_2026-10-21/`에 있다. 수정 전 실패 기록은 보존한다.
 - 한계: data6는 수정에 사용한 개발·회귀 구간이며 미사용 평가 구간의 일반화 검증이 아니다. 장치 단절로 레이더 메시지 자체가 오지 않는 경우와 장기 LiDAR 퇴화는 미해결 범위다. baseline/robust 및 기본 모드는 유지했다. 이번 수정과 보고서는 로컬 commit으로 보관하며 push하지 않는다.
+
+## 2026-10-21 — 사용자 요청에 따른 push 및 전체 재검증
+
+- 사용자 요청으로 GaRLIO `405e858`, JURLIO `4272ec6`를 각 기존 GPT 브랜치에 push했다. 이 PC의 GitHub 인증 부재로 최초 push는 실패했고, 사용자가 GitHub CLI 인증을 완료한 뒤 성공했다.
+- GaRLIO 수동 CI `39616806450`의 harness가 `test_interpolation`을 가져올 때 NumPy 누락으로 실패했다. ROS 컨테이너에는 NumPy가 이미 있어 로컬 검사만으로 이 설치 목록 누락을 발견하지 못했다. workflow와 README에 `numpy==1.26.4`를 명시했다. C++ 알고리즘 변경은 없다.
+- **실행으로 확인됨:** PyYAML 6.0.3·psutil 7.0.0·NumPy 1.26.4를 설치한 깨끗한 Python 환경에서 harness 31개 통과. 최신 push 커밋으로 공식 GaRLIO·FAST-LIO·Point-LIO 및 fork overlay를 로컬 재빌드하고 원본/fork 패키지 선택·소스 manifest·분석 이미지 import 검사까지 통과했다.
+- JURLIO 원격 CI `39616406276`는 GitHub 계정 결제 실패 또는 spending limit 때문에 단계가 시작되지 않았다. GaRLIO harness의 의존성 오류와 구분한다. JURLIO의 최신 커밋 로컬 ROS 빌드·수치 검사 7개·Python 18개 및 합성 네 방법×3회는 통과했다.
+- 실측 반복·미사용 시퀀스 평가와 추가 장애 시험은 계속 진행 중이다. 결과 파일은 부모 작업 폴더 `output/push_validation_2026-10-21/`에 보존한다. 이 설정 수정의 원격 CI 성공 여부는 후속 결과에 기록한다.

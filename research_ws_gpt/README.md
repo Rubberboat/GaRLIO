@@ -138,7 +138,7 @@ echo $! > results/checkpoint0-background.pid
 ## 로컬 검사
 
 ```bash
-python3 -m pip install PyYAML==6.0.3 psutil==7.0.0
+python3 -m pip install PyYAML==6.0.3 psutil==7.0.0 numpy==1.26.4
 python3 -m unittest discover -s tests -v
 bash -n docker/run.sh docker/ros/entrypoint.sh scripts/run_experiment.sh
 ```
