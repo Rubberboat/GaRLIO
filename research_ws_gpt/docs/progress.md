@@ -143,3 +143,13 @@
 - JURLIO `4272ec6`·`fe57169`는 push됐고 로컬 ROS 빌드·C++ 수치 7개·Python 18개를 통과했다. [원격 CI](https://github.com/Rubberboat/jurlio/actions/runs/39620280440)는 계정 결제 실패 또는 spending limit으로 job 단계가 시작되지 않았다. 코드 실패나 원격 CI 성공으로 기록하지 않는다. 최종 `jurlio:validated-gpt`의 두 ROS 실행 파일은 전체 재생에 사용한 바이너리와 hash가 같다.
 - 이 GaRLIO의 핵심 패키지 파일 31개는 고정 공식 원본 `ff4dfef`와 동일하다. 논문 기능을 임의로 제거하지 않았다. 최종 결과는 [JURLIO 보고서](https://github.com/Rubberboat/jurlio/blob/codex/integration-audit-gpt/docs/FULL_VALIDATION_2026-10-21.md), 부모 폴더 `output/push_validation_2026-10-21/`에 원시 성공·실패 로그와 입력·소스·이미지 식별자를 보존한다. 보고서에는 구조 설명의 이전 문서, 비교 그래프, 수치 JSON, 재현 분석 코드를 연결했다.
 - 남은 연구는 JURLIO 공통 변경 ablation, IMU 공백에서 전파·중력 의존성, fused prior의 시각 정합과 레이더 메시지 단절 시 스윕 생성이다. 이번 요청의 실행·보고를 완료하되 NTU·Point-LIO 비교를 포함한 전체 연구 계획 완료나 실사용 성능 우위를 주장하지 않는다.
+
+
+## 2026-10-22 — 실제 GaRLIO fork 개선 재개: 속도 보정의 품질 검사 우회 방지
+
+- 사용자가 개선될 때까지 SNAIL 재실행·비교를 요청했다. 개선 대상은 GaRLIO 루트이며 공식 고정 소스는 계속 분리한다. 이전 data4도 실패를 분석한 개발 데이터로 재분류하며 새로운 미사용 평가라고 부르지 않는다.
+- `Angle Refine`가 Doppler의 기존 축별 0.5 m/s 품질 기준을 벗어난 레이더 속도를 공분산 갱신 없이 상태에 직접 대입할 수 있음을 확인했다. 같은 작업 폴더의 별도 `jurlio-hunger/docs/REVIEW_CLAUDE.md`가 먼저 이 우회 경로를 지적했으며, 해당 작업 트리는 수정하지 않았다. GaRLIO에 필요한 최소 조건만 독립 구현했다.
+- `mapping/refine_velocity_consistency` 기본 true: 이전 IMU 예측과 일치하는 레이더에만 기존 긴급 속도 대입을 허용한다. false는 기존 동작 대조군이다. 앞선 LiDAR 재갱신과 정상 Doppler·중력 단계는 유지한다. `radar_guard.csv`는 요청·허용·실제 대입을 별도로 기록한다.
+- **실행:** 경계·축별 이상치·NaN/Inf 거부 수치 시험과 ROS fork 빌드 통과. data6 첫 실행은 위치 RMSE 2.352cm, 최대 9.939cm, 1,817 pose다. 기존 원본 단일 실행 2.439cm·9.872cm와 비교하며, 반복 검증 전 개선 확정으로 처리하지 않는다. data4 실행은 진행 중이다.
+- 별도 JURLIO의 한 IMU 스윕 폐기 조건만 바꾼 대조는 data4 RMSE 40.810→16.254cm, 최대 487.193→119.428cm, 2,051→2,095 pose를 보였다. 다른 갱신 수식은 그대로여서 이 조건의 영향이 확인됐다. 원본보다 우월하다고 주장하지 않는다.
+- 실험 계획·소스 hash·명령·실패 포함 로그는 부모 폴더 `output/improvement_2026-10-22/`에 보존한다. 후속 시간 경계 후보는 현재 재생 바이너리와 별도로 준비한다.

@@ -38,6 +38,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <math.h>
+#include "radar_velocity_guard_gpt.hpp"
 #include <vector>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
@@ -1447,6 +1448,8 @@ int main(int argc, char **argv)
 	std::vector<double> T_rl_vec(16,0.0);
 
 	std::string traj_save_path;
+    bool refine_velocity_consistency = true;
+    nh.param<bool>("mapping/refine_velocity_consistency", refine_velocity_consistency, true);
 
 	nh.param<std::string>("common/imu_topic", imu_topic, "/imu/data");
 	nh.param<int>("mapping/max_iteration", NUM_MAX_ITERATIONS, 4);
@@ -1517,7 +1520,9 @@ int main(int argc, char **argv)
 	gravity_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker_gt", 1);
 
 
-	ROS_INFO("\033[1;32m---->\033[0m Mapping Started.");
+	std::ofstream guard_diagnostics(traj_save_path + "/radar_guard.csv");
+    guard_diagnostics << "timestamp,refine_requested,radar_consistent,refine_applied\n";
+    ROS_INFO("\033[1;32m---->\033[0m Mapping Started.");
 
 	Eigen::MatrixXd R_ri = T_r2i.block<3, 3>(0, 0);
 	Eigen::Vector3d p_r_ri = T_r2i.block<3, 1>(0, 3);
@@ -1728,6 +1733,10 @@ int main(int argc, char **argv)
 
 			/*** two stage iterated state estimation ***/
 			Eigen::Vector3d a = propagate_state.vel_end; //prev vel
+            bool refine_requested = false, refine_applied = false;
+            const V3D predicted_body = propagate_state.rot_end.transpose() * a;
+            const V3D radar_body = R_ri.transpose()*v_r-skew(pImu_->get_angvel())*p_i_ir;
+            const bool radar_consistent = garlio_gpt::radarVelocityConsistent(predicted_body, radar_body);
 			processIESKF(); 
 			Eigen::Vector3d b = lio_state.vel_end; 
 			
@@ -1754,13 +1763,23 @@ int main(int argc, char **argv)
 					else if (cosine_theta < -1.0) cosine_theta = -1.0;
 					angle_radians = std::acos(cosine_theta);
 					angle_degrees = angle_radians * (180.0 / M_PI);
-					if(angle_degrees>2) lio_state.vel_end =  propagate_state.rot_end*(R_ri.transpose()*v_r-skew(pImu_->get_angvel())*p_i_ir); //lidar fail due to few features
+					if (angle_degrees > 2) {
+                        refine_requested = true;
+                        // A radar velocity rejected by the existing quality gate
+                        // must not bypass it through a hard state assignment.
+                        if (!refine_velocity_consistency || radar_consistent) {
+                            lio_state.vel_end = propagate_state.rot_end * radar_body;
+                            refine_applied = true;
+                        }
+                    }
 					LASER_POINT_COV = LASER_POINT_COV * 10;
 					ROS_WARN("Angle Refine! \n");
 				}
 				
 			}
-			bool gravity_mode = true;
+			guard_diagnostics << std::fixed << std::setprecision(9) << lidar_end_time << ','
+                << refine_requested << ',' << radar_consistent << ',' << refine_applied << '\n';
+            bool gravity_mode = true;
 			if (gravity_mode){
 				propagate_state = lio_state;
 				processIESKF(true, false);
