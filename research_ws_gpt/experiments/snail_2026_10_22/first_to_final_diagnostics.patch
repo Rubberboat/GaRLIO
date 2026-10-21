@@ -1,0 +1,36 @@
+--- first/src/lidarMapping.cpp
++++ final/src/lidarMapping.cpp
+@@ -1553,7 +1553,7 @@
+ 
+ 
+ 	std::ofstream guard_diagnostics(traj_save_path + "/radar_guard.csv");
+-    guard_diagnostics << "timestamp,refine_requested,radar_consistent,refine_applied,imu_samples,imu_support_gap,sweep_duration\n";
++    guard_diagnostics << "timestamp,refine_requested,radar_consistent,refine_applied,imu_samples,imu_support_gap,sweep_duration,input_clock_lag_s\n";
+     ROS_INFO("\033[1;32m---->\033[0m Mapping Started.");
+ 
+ 	Eigen::MatrixXd R_ri = T_r2i.block<3, 3>(0, 0);
+@@ -1815,7 +1815,8 @@
+             guard_diagnostics << std::fixed << std::setprecision(9) << lidar_end_time << ','
+                 << refine_requested << ',' << radar_consistent << ',' << refine_applied << ','
+                 << Measures.imu.size() << ',' << imu_support_gap << ','
+-                << Measures.lidar_end_time-Measures.lidar_beg_time << '\n';
++                << Measures.lidar_end_time-Measures.lidar_beg_time << ','
++                << ros::Time::now().toSec()-lidar_end_time << '\n';
+             bool gravity_mode = true;
+ 			if (gravity_mode){
+ 				propagate_state = lio_state;
+--- first/src/imuProcess.hpp
++++ final/src/imuProcess.hpp
+@@ -325,9 +325,9 @@
+         Q.block<3, 3>(6, 6).diagonal() = gyr_bias_cov;
+         Q.block<3, 3>(9, 9).diagonal() = acc_bias_cov;
+ 
+-        // Reusing one measured bracket across multiple sweeps must not turn
+-        // its uncertainty into independent high-rate observations. Preserve
+-        // the total dt^2 driving variance of that raw interval under splitting.
++        // Approximate the uncertainty of a reused measured bracket by preserving
++        // its total dt^2 driving variance under splitting. Endpoint correlations
++        // are not modeled explicitly by this discrete-noise approximation.
+         processNoise interval_Q = Q;
+         if (time_consistent_) interval_Q *=
+             (tail->header.stamp.toSec()-head->header.stamp.toSec()) / dt;

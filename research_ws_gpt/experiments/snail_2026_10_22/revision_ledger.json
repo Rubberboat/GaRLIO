@@ -1,0 +1,32 @@
+[
+  {
+    "repository": "Rubberboat/GaRLIO",
+    "branch": "main",
+    "commit": "2dcc39e70e2e8eb43649820d2315ef78b34a5838",
+    "last_observed_utc": "2026-10-21T16:24:54Z",
+    "exact_revision_status": "build_failed",
+    "build_log": "build_claude_clean.log",
+    "failure": "cloudProcess missing explicit OpenCV linkage after cv_bridge removal",
+    "invalid_runs": [
+      "claude_2dcc39e_data4_r2",
+      "claude_2dcc39e_data4",
+      "claude_2dcc39e_data6",
+      "claude_2dcc39e_synthetic"
+    ],
+    "invalid_reason": "stale inherited objects; see BUILD_CACHE_INCIDENT.md",
+    "diagnostic_patch": "claude_2dcc39e_opencv.patch",
+    "diagnostic_patch_sha256": "1ede96865c2de6d5ed59b44320f23f77832a349a9cc86632c5f66100138ce1fd",
+    "diagnostic_status": "completed_synthetic_and_three_repeats_per_sequence",
+    "diagnostic_result_prefix": "claude_linkfix_2dcc39e",
+    "source_snapshot": "claude_sources/garlio_2dcc39e",
+    "patched_source_snapshot": "claude_sources/garlio_2dcc39e_linkfix",
+    "metrics": [
+      "data4_scores.json",
+      "data6_scores.json",
+      "repeat_summary.json"
+    ],
+    "notification_status": "reported_in_current_turn",
+    "diagnostic_verdict": "no_confirmed_accuracy_improvement_under_predeclared_rule_on_either_sequence",
+    "diagnostic_repeats_per_sequence": 3
+  }
+]

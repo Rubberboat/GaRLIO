@@ -1,0 +1,99 @@
+common:
+  lid_topic: /hesai/pandar
+  imu_topic: /mti3dk/imu
+  radar_topic: /radar_pcl2
+  topic_twist: /eagle_data/twist
+  topic_inlier_pc2: /eagle_data/inlier_pc2
+  topic_outlier_pc2: /eagle_data/outlier_pc2
+threshold:
+  power_threshold: 0
+  distance_near_thresh: 2
+  distance_far_thresh: 100
+  z_low_thresh: -100
+  z_high_thresh: 100
+  downsample_method: VOXELGRID
+  downsample_resolution: 0.1
+  outlier_removal_method: RADIUS
+  statistical_mean_k: 30
+  statistical_stddev: 1.2
+  radius_radius: 0.5
+  radius_min_neighbors: 1
+cov:
+  LASER_POINT_COV: 0.0005
+  VELOCITY_COV: 0.5
+  GRAVITY_COV: 0.002
+preprocess:
+  lidar_type: 1
+  radar_type: 1
+  n_scans: 32
+  timestamp_unit: 0
+  feature_extract_enable: false
+  point_filter_num: 1
+  blind: 4
+mapping:
+  max_iteration: 4
+  cube_side_length: 1000.0
+  filter_size_surf: 0.5
+  filter_size_map: 0.5
+  acc_noise: 0.1
+  gyr_noise: 0.1
+  acc_bias_noise: 0.0001
+  gyr_bias_noise: 0.0001
+  fov_degree: 180
+  det_range: 150.0
+  extrinsic_est_en: false
+  extrinsic_t_il:
+  - 0
+  - 0
+  - 0
+  extrinsic_R_il:
+  - 1
+  - 0
+  - 0
+  - 0
+  - 1
+  - 0
+  - 0
+  - 0
+  - 1
+  extrinsic_T_ri:
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 1
+  extrinsic_T_rl:
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 1
+  time_consistent_sweeps: true
+pcd_save:
+  pcd_save_en: false
+  interval: -1
+  traj_save_path: /results
+radar:
+  robust: true

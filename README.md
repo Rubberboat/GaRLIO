@@ -30,7 +30,7 @@
 
 This repository contains the code for **GaRLIO: Gravity enhanced Radar-LiDAR-Inertial Odometry**, which is accepted by ICRA 2025. 
 
-이 fork는 **GaRLIO를 기반으로 기존 기능에 개선사항을 추가**합니다. 수정 대상은 루트의 `src/`, `include/`, `config/`, `launch/`이며, ROS 패키지 이름 `garlio`를 유지합니다. GPT의 빌드·실험 환경과 현재 개발 계획은 [research_ws_gpt](research_ws_gpt/README.md)에 있습니다. 원본 GaRLIO(`garlio`)와 이 fork(`garlio_gpt`)를 별도 빌드 공간에서 비교하고, Point-LIO·FAST-LIO는 비교 기준으로 사용합니다. [Linux CI](https://github.com/Rubberboat/GaRLIO/actions/runs/39395984431)에서 네 방법의 빌드·패키지 선택 검사와 실행 도구 테스트 28개가 통과했습니다. 현재 변경은 개발·검증 기반이며, 실제 bag 재생과 알고리즘 개선 효과는 아직 검증하지 않았습니다.
+이 fork는 **GaRLIO를 기반으로 기존 기능에 개선사항을 추가**합니다. 수정 대상은 루트의 `src/`, `include/`, `config/`, `launch/`이며, ROS 패키지 이름 `garlio`를 유지합니다. GPT의 빌드·실험 환경과 현재 개발 계획은 [research_ws_gpt](research_ws_gpt/README.md)에 있습니다. 원본 GaRLIO(`garlio`)와 이 fork(`garlio_gpt`)를 별도 빌드 공간에서 비교하고, Point-LIO·FAST-LIO는 비교 기준으로 사용합니다. [Linux CI](https://github.com/Rubberboat/GaRLIO/actions/runs/39395984431)에서 네 방법의 빌드·패키지 선택 검사와 실행 도구 테스트 28개가 통과했습니다. 2026-10-22에는 시간 경계 처리와 긴급 레이더 속도 대입 검사를 실제 GaRLIO에 추가하고 SNAIL 두 구간에서 반복 재생했습니다. data4의 공통 시각 RMSE는 3회 평균 13.77→4.99cm로 줄었으며, 새로 복원한 시각의 오차·미래 IMU 대기 지연·data6의 불확실성도 [재검증 보고서](research_ws_gpt/docs/SNAIL_REVALIDATION_2026-10-22.md)에 공개합니다. 시간 기능은 기본 false이고 보고서의 실험 프로필에서 true입니다.
 
 <!-- TABLE OF CONTENTS -->
 <details open="open" style='padding: 10px; border-radius:5px 30px 30px 5px; border-style: solid; border-width: 1px;'>

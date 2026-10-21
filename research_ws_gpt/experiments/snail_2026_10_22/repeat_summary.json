@@ -1,0 +1,272 @@
+{
+  "data4": {
+    "common_poses": 1369,
+    "reference_poses": 1509,
+    "groups": {
+      "Upstream GaRLIO": {
+        "runs": [
+          "original",
+          "original_data4_r2",
+          "original_data4_r3"
+        ],
+        "rmse_cm": [
+          14.22546964644108,
+          13.026660106748686,
+          14.066070842811737
+        ],
+        "mean_rmse_cm": 13.772733532000501,
+        "std_rmse_cm": 0.6510154848771635,
+        "max_error_cm": [
+          119.3851073599603,
+          105.52390250755315,
+          114.23803589967909
+        ],
+        "own_rmse_cm": [
+          18.057522085670737,
+          17.037353319848506,
+          17.94166071924456
+        ],
+        "coverage": [
+          1393,
+          1393,
+          1393
+        ],
+        "max_output_gap_s": [
+          0.9332375526428223,
+          0.9332375526428223,
+          0.9332375526428223
+        ]
+      },
+      "Claude 2dcc39e + link fix": {
+        "runs": [
+          "claude_linkfix_2dcc39e_data4_r1",
+          "claude_linkfix_2dcc39e_data4_r2",
+          "claude_linkfix_2dcc39e_data4_r3"
+        ],
+        "rmse_cm": [
+          12.076433841543974,
+          11.399257469069926,
+          16.129324725891248
+        ],
+        "mean_rmse_cm": 13.201672012168382,
+        "std_rmse_cm": 2.557929781871645,
+        "max_error_cm": [
+          87.75589869738195,
+          81.86647584623032,
+          124.45583863495374
+        ],
+        "own_rmse_cm": [
+          15.469347215130242,
+          14.352906595566072,
+          20.046839417660927
+        ],
+        "coverage": [
+          1393,
+          1393,
+          1393
+        ],
+        "max_output_gap_s": [
+          0.9332375526428223,
+          0.9332375526428223,
+          0.9332375526428223
+        ]
+      },
+      "Time-consistent fork": {
+        "runs": [
+          "g_time_d4",
+          "g_final_data4_r2",
+          "g_final_data4_r3"
+        ],
+        "rmse_cm": [
+          5.069169685192882,
+          5.042833854369409,
+          4.860058780316125
+        ],
+        "mean_rmse_cm": 4.990687439959472,
+        "std_rmse_cm": 0.11389152311060578,
+        "max_error_cm": [
+          37.10494396027204,
+          36.72599499141349,
+          37.811886775764215
+        ],
+        "own_rmse_cm": [
+          8.993090626928685,
+          9.027131004819733,
+          8.715753686014764
+        ],
+        "coverage": [
+          1509,
+          1509,
+          1509
+        ],
+        "max_output_gap_s": [
+          0.1908278465270996,
+          0.1908278465270996,
+          0.1908278465270996
+        ]
+      }
+    },
+    "conservative_difference_rule": {
+      "mean_reduction_cm": 8.782046092041028,
+      "twice_larger_sample_sd_cm": 1.302030969754327,
+      "passed": true,
+      "note": "Descriptive research rule, not a significance test; three repeats on development data."
+    },
+    "claude_linkfix_difference_rule": {
+      "mean_reduction_cm": 0.571061519832119,
+      "twice_larger_sample_sd_cm": 5.11585956374329,
+      "passed": false,
+      "note": "Only the separately link-patched diagnostic copy; the exact remote revision failed to build."
+    }
+  },
+  "data6": {
+    "common_poses": 1248,
+    "reference_poses": 1251,
+    "groups": {
+      "Upstream GaRLIO": {
+        "runs": [
+          "original",
+          "original_data6_r2",
+          "original_data6_r3"
+        ],
+        "rmse_cm": [
+          2.439442308804977,
+          2.9745112821283968,
+          2.9550717241391866
+        ],
+        "mean_rmse_cm": 2.789675105024187,
+        "std_rmse_cm": 0.30346619707036393,
+        "max_error_cm": [
+          9.871546045046237,
+          39.7303311853865,
+          39.559820497065814
+        ],
+        "own_rmse_cm": [
+          2.439442308804977,
+          2.9745112821283968,
+          2.9550717241391866
+        ],
+        "coverage": [
+          1248,
+          1248,
+          1248
+        ],
+        "max_output_gap_s": [
+          0.3094980716705322,
+          0.3094980716705322,
+          0.3094980716705322
+        ]
+      },
+      "Claude 2dcc39e + link fix": {
+        "runs": [
+          "claude_linkfix_2dcc39e_data6_r1",
+          "claude_linkfix_2dcc39e_data6_r2",
+          "claude_linkfix_2dcc39e_data6_r3"
+        ],
+        "rmse_cm": [
+          2.913404169240463,
+          2.271761455479619,
+          2.9068194303220816
+        ],
+        "mean_rmse_cm": 2.6973283516807207,
+        "std_rmse_cm": 0.36856644862675103,
+        "max_error_cm": [
+          39.72917676722558,
+          8.082511427885462,
+          39.39217840849595
+        ],
+        "own_rmse_cm": [
+          2.913404169240463,
+          2.271761455479619,
+          2.9068194303220816
+        ],
+        "coverage": [
+          1248,
+          1248,
+          1248
+        ],
+        "max_output_gap_s": [
+          0.3094980716705322,
+          0.3094980716705322,
+          0.3094980716705322
+        ]
+      },
+      "Time-consistent fork": {
+        "runs": [
+          "g_time_d6",
+          "g_final_data6_r2",
+          "g_final_data6_r3"
+        ],
+        "rmse_cm": [
+          2.1336391909628833,
+          2.221694209261402,
+          2.226603816940085
+        ],
+        "mean_rmse_cm": 2.193979072388123,
+        "std_rmse_cm": 0.05231349758617427,
+        "max_error_cm": [
+          9.403722491503979,
+          9.395716403856591,
+          9.34054292898139
+        ],
+        "own_rmse_cm": [
+          2.1336391909628833,
+          2.221694209261402,
+          2.226603816940085
+        ],
+        "coverage": [
+          1248,
+          1248,
+          1248
+        ],
+        "max_output_gap_s": [
+          0.3095061779022217,
+          0.3095061779022217,
+          0.3095061779022217
+        ]
+      }
+    },
+    "conservative_difference_rule": {
+      "mean_reduction_cm": 0.5956960326360639,
+      "twice_larger_sample_sd_cm": 0.6069323941407279,
+      "passed": false,
+      "note": "Descriptive research rule, not a significance test; three repeats on development data."
+    },
+    "claude_linkfix_difference_rule": {
+      "mean_reduction_cm": 0.09234675334346631,
+      "twice_larger_sample_sd_cm": 0.7371328972535021,
+      "passed": false,
+      "note": "Only the separately link-patched diagnostic copy; the exact remote revision failed to build."
+    }
+  },
+  "input_clock_lag": {
+    "g_final_data4_r3/garlio_gpt/data4/run_1/radar_guard.csv": {
+      "rows": 2239,
+      "median_s": 0.030616283,
+      "p95_s": 0.22493059679999972,
+      "max_s": 0.965599775,
+      "max_imu_support_gap_s": 0.941101551
+    },
+    "g_final_data6_r3/garlio_gpt/data6/run_1/radar_guard.csv": {
+      "rows": 1817,
+      "median_s": 0.028964281,
+      "p95_s": 0.042969131199999976,
+      "max_s": 0.080007076,
+      "max_imu_support_gap_s": 0.026861191
+    },
+    "g_final_data4_r2/garlio_gpt/data4/run_1/radar_guard.csv": {
+      "rows": 2239,
+      "median_s": 0.031737566,
+      "p95_s": 0.2146374703999999,
+      "max_s": 0.95311451,
+      "max_imu_support_gap_s": 0.941101551
+    },
+    "g_final_data6_r2/garlio_gpt/data6/run_1/radar_guard.csv": {
+      "rows": 1817,
+      "median_s": 0.029387951,
+      "p95_s": 0.0436474798,
+      "max_s": 0.072244406,
+      "max_imu_support_gap_s": 0.026861191
+    }
+  }
+}

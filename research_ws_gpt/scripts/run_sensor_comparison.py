@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run pinned GaRLIO and the local JURLIO binary on one sensor bag.
+"""Run pinned GaRLIO, a separately verified fork, and JURLIO on one sensor bag.
 
 Requires matching, already-built Docker images. No network, privileged container,
 GUI access, image rebuild or real robot connection is needed.
@@ -37,13 +37,16 @@ def main():
     p.add_argument('--config', type=Path)
     p.add_argument('--groundtruth', type=Path, help='TUM reference; LiDAR origin for real data')
     p.add_argument('--runs', type=int, default=3)
-    p.add_argument('--methods', nargs='+', choices=['garlio', 'baseline', 'robust', 'dynamic'],
+    p.add_argument('--methods', nargs='+', choices=['garlio', 'garlio_gpt', 'baseline', 'robust', 'dynamic'],
                    default=['garlio', 'baseline', 'robust', 'dynamic'])
     p.add_argument('--rate', type=float, default=1)
     p.add_argument('--cpus', type=int, default=2)
     p.add_argument('--memory', default='6g')
     p.add_argument('--garlio-image', default='radar-point-lio-ros:phase0-gpt')
     p.add_argument('--jurlio-image', default='jurlio:verify-gpt')
+    p.add_argument('--garlio-fork-root', type=Path, default=ROOT.parent,
+                   help='Exact fork snapshot used to build the image; never compared to the pinned baseline')
+    p.add_argument('--garlio-fork-image', help='Defaults to --garlio-image')
     a = p.parse_args()
     if a.runs < 1 or a.rate <= 0 or not __import__('math').isfinite(a.rate) or a.cpus < 1:
         p.error('runs, rate and cpus must be positive')
@@ -66,23 +69,26 @@ def main():
         if result.returncode:
             raise RuntimeError(f'{label} failed; see {out}/logs/{label}.log')
         return result.stdout if capture else None
-    images = json.loads(execute(['docker', 'image', 'inspect', a.garlio_image, a.jurlio_image], 'images', True))
+    images = json.loads(execute(['docker', 'image', 'inspect', a.garlio_image, a.jurlio_image, a.garlio_fork_image or a.garlio_image], 'images', True))
     (out / 'images.json').write_text(json.dumps(images, indent=2) + '\n')
     # Resolve tags to immutable IDs once, so another build cannot change a run.
-    gid, jid = [image['Id'] for image in images]
+    gid, jid, fid = [image['Id'] for image in images]
     base = ['docker', 'run', '--rm', '--init', '--network', 'none', '--user', f'{os.getuid()}:{os.getgid()}',
             '--cpus', str(a.cpus), '--memory', a.memory, '-e', 'HOME=/tmp/simulation-home',
             '-e', 'PYTHONDONTWRITEBYTECODE=1',
-            '-v', f'{ROOT}:/work:ro', '-v', f'{jroot}:/jurlio:ro', '-v', f'{out}:/results']
+            '-v', f'{ROOT}:/work:ro', '-v', f'{jroot}:/jurlio:ro', '-v', f'{out}:/results',
+            '-v', f'{a.garlio_fork_root.resolve()}:/garlio-fork:ro']
     bag_path = '/results/inputs/synthetic.bag'
     if a.bag:
         base += ['-v', f'{a.bag.resolve()}:/data/input.bag:ro']
         bag_path = '/data/input.bag'
-    def container(image, *command):
-        return base + [image, 'bash', '-c',
+    def container(image, *command, fork=False):
+        variant = ['-e', 'RESEARCH_GARLIO_VARIANT=' + ('fork' if fork else 'baseline'),
+                   '-e', 'RESEARCH_FORK_SOURCE=/garlio-fork']
+        return base + variant + [image, 'bash', '-c',
             'mkdir -p "$HOME"; git config --global --add safe.directory /opt/research/catkin_ws/src/garlio; exec "$@"',
             'simulation', *command]
-    source = {'garlio': hashes(ROOT.parent, ('CMakeLists.txt', 'package.xml', 'LICENSE', 'src', 'include', 'config', 'launch', 'rviz_cfg')),
+    source = {'garlio_fork': hashes(a.garlio_fork_root.resolve(), ('CMakeLists.txt', 'package.xml', 'LICENSE', 'src', 'include', 'config', 'launch', 'rviz_cfg')),
               'jurlio': hashes(jroot, ('CMakeLists.txt', 'package.xml', 'src', 'include')),
               'jurlio_tools': hashes(jroot, ('scripts', 'tests/synthetic.yaml')),
               'garlio_tools': hashes(ROOT, ('scripts', 'launch'))}
@@ -93,7 +99,14 @@ root=pathlib.Path(sys.argv[2])
 wrong=[name for name,digest in expected.items() if not (root/name).is_file() or hashlib.sha256((root/name).read_bytes()).hexdigest()!=digest]
 if wrong: raise SystemExit('Stale/different binary source snapshot: '+str(wrong))
 print('Verified',len(expected),'build source files')'''
-    execute(container(gid, 'python3', '-c', check, 'garlio', '/opt/research/catkin_ws/src/garlio'), 'verify_garlio')
+    # The local fork is allowed to differ from the upstream baseline. Verify the
+    # latter against its image lock/SHA/clean state, and the fork against its
+    # complete build manifest plus the explicitly selected source snapshot.
+    verify = "import sys,json;sys.path.insert(0,'/work/scripts');from garlio_source import runtime_source;print(json.dumps(runtime_source(sys.argv[1])))"
+    if 'garlio' in a.methods:
+        execute(container(gid, 'python3', '-c', verify, 'garlio'), 'verify_garlio')
+    if 'garlio_gpt' in a.methods:
+        execute(container(fid, 'python3', '-c', verify, 'garlio_gpt', fork=True), 'verify_garlio_fork')
     execute(container(jid, 'python3', '-c', check, 'jurlio', '/ws/src/jurlio'), 'verify_jurlio')
     execute(container(gid, 'python3', '-m', 'unittest', 'discover', '-s', '/work/tests', '-v'), 'garlio_harness_tests')
     execute(container(jid, 'python3', '-m', 'unittest', 'discover', '-s', '/jurlio/tests', '-v'), 'jurlio_tests')
@@ -111,7 +124,7 @@ print('Verified',len(expected),'build source files')'''
         cpus=a.cpus, memory=a.memory, rate=a.rate, repeats=a.runs,
         alignment='se3' if a.bag else 'none',
         estimated_origin='IMU', evaluation_origin='LiDAR' if a.bag else 'coincident IMU/LiDAR',
-        garlio_image=gid, jurlio_image=jid), indent=2) + '\n')
+        garlio_image=gid, garlio_fork_image=fid, jurlio_image=jid), indent=2) + '\n')
     for source_root, label in [(ROOT, 'garlio_harness'), (jroot, 'jurlio')]:
         for folder in ('scripts', 'launch'):
             shutil.copytree(source_root / folder, out / 'source_snapshot' / label / folder, ignore=shutil.ignore_patterns('__pycache__'))
@@ -124,11 +137,11 @@ print('Verified',len(expected),'build source files')'''
         for method in methods:
             label = f'{method}_{repeat}'
             try:
-                if method == 'garlio':
-                    command = container(gid, 'python3', '/work/scripts/run_experiment.py', 'garlio', 'sequence',
+                if method in ('garlio', 'garlio_gpt'):
+                    command = container(fid if method == 'garlio_gpt' else gid, 'python3', '/work/scripts/run_experiment.py', method, 'sequence',
                         '--bag', bag_path, '--config', '/results/inputs/config.yaml',
-                        '--output', f'/results/repeat_{repeat}', '--runs', '1', '--rate', str(a.rate))
-                    target = f'/results/repeat_{repeat}/garlio/sequence/run_1'
+                        '--output', f'/results/repeat_{repeat}', '--runs', '1', '--rate', str(a.rate), fork=method == 'garlio_gpt')
+                    target = f'/results/repeat_{repeat}/{method}/sequence/run_1'
                 else:
                     target = f'/results/repeat_{repeat}/jurlio_{method}'
                     command = container(jid, 'python3', '/jurlio/scripts/run_replay.py', bag_path,

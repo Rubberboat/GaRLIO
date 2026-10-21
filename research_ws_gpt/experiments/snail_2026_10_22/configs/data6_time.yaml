@@ -1,0 +1,111 @@
+common:
+  lid_topic: /hesai/pandar
+  imu_topic: /mti3dk/imu
+  radar_topic: /radar_pcl2
+  topic_twist: /eagle_data/twist
+  topic_inlier_pc2: /eagle_data/inlier_pc2
+  topic_outlier_pc2: /eagle_data/outlier_pc2
+threshold:
+  power_threshold: 0
+  distance_near_thresh: 2
+  distance_far_thresh: 100
+  z_low_thresh: -1
+  z_high_thresh: 100
+  downsample_method: VOXELGRID
+  downsample_resolution: 0.1
+  outlier_removal_method: RADIUS
+  statistical_mean_k: 30
+  statistical_stddev: 1.2
+  radius_radius: 0.5
+  radius_min_neighbors: 1
+cov:
+  LASER_POINT_COV: 0.0005
+  VELOCITY_COV: 0.5
+  GRAVITY_COV: 0.002
+preprocess:
+  lidar_type: 1
+  radar_type: 1
+  n_scans: 32
+  timestamp_unit: 0
+  feature_extract_enable: false
+  point_filter_num: 4
+  blind: 4
+mapping:
+  max_iteration: 4
+  cube_side_length: 1000.0
+  filter_size_surf: 0.5
+  filter_size_map: 0.5
+  acc_noise: 0.1
+  gyr_noise: 0.1
+  acc_bias_noise: 0.0001
+  gyr_bias_noise: 0.0001
+  fov_degree: 180
+  det_range: 150.0
+  extrinsic_est_en: false
+  extrinsic_t_il:
+  - -0.01271295876330118
+  - -0.0012950214185080172
+  - 0.18449698374523274
+  extrinsic_R_il:
+  - -0.09943792588535819
+  - -0.9929954830703405
+  - -0.063812769078919
+  - 0.9941061165082589
+  - -0.10192313699522183
+  - 0.03694189039453675
+  - -0.04318712790272971
+  - -0.059763239093565505
+  - 0.9972779087278323
+  extrinsic_T_ri:
+  - 0.9940920096720481
+  - 0.08262697678744307
+  - 0.07038365586665837
+  - -0.06909569570259534
+  - -0.07777544924036144
+  - 0.9945741575058459
+  - -0.06908852811427404
+  - 0.008517595367484417
+  - -0.07571034144453986
+  - 0.06320623330419413
+  - 0.9951245732418865
+  - -0.06887758279305374
+  - 0.0
+  - 0.0
+  - 0.0
+  - 1.0
+  extrinsic_T_rl:
+  - -0.019750132516187898
+  - -0.999756831289107
+  - 0.009808697995033207
+  - -0.06885497792080866
+  - 0.9994298177551558
+  - -0.020010494093614335
+  - -0.02719594653668321
+  - -0.004528268438271555
+  - 0.027385610226718045
+  - 0.009265981701588759
+  - 0.9995819976048067
+  - 0.115600548443664
+  - 0.0
+  - 0.0
+  - 0.0
+  - 1.0
+  time_consistent_sweeps: true
+pcd_save:
+  pcd_save_en: false
+  interval: -1
+  traj_save_path: /results
+radar:
+  robust: true
+  dynamic_mode: false
+  min_static_ratio: 0.2
+  min_static_points: 12
+  dynamic_threshold: 0.8
+  prior_max_age: 0.35
+  prior_base_gate: 0.4
+  prior_acceleration_bound: 3.0
+provenance:
+  tf_source: /results/real_data/data6/tf_static.launch
+  lidar_frame: PandarXT-32
+  radar_frame: oculii
+  imu_frame: mti3dk

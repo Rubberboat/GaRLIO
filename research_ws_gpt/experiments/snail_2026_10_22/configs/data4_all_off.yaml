@@ -1,0 +1,112 @@
+common:
+  lid_topic: /hesai/pandar
+  imu_topic: /zed2i/zed_node/imu/data
+  radar_topic: /radar_pcl2
+  topic_twist: /eagle_data/twist
+  topic_inlier_pc2: /eagle_data/inlier_pc2
+  topic_outlier_pc2: /eagle_data/outlier_pc2
+threshold:
+  power_threshold: 0
+  distance_near_thresh: 2
+  distance_far_thresh: 100
+  z_low_thresh: -1
+  z_high_thresh: 100
+  downsample_method: VOXELGRID
+  downsample_resolution: 0.1
+  outlier_removal_method: RADIUS
+  statistical_mean_k: 30
+  statistical_stddev: 1.2
+  radius_radius: 0.5
+  radius_min_neighbors: 1
+cov:
+  LASER_POINT_COV: 0.0005
+  VELOCITY_COV: 0.5
+  GRAVITY_COV: 0.002
+preprocess:
+  lidar_type: 1
+  radar_type: 1
+  n_scans: 32
+  timestamp_unit: 0
+  feature_extract_enable: false
+  point_filter_num: 4
+  blind: 4
+mapping:
+  max_iteration: 4
+  cube_side_length: 1000.0
+  filter_size_surf: 0.5
+  filter_size_map: 0.5
+  acc_noise: 0.1
+  gyr_noise: 0.1
+  acc_bias_noise: 0.0001
+  gyr_bias_noise: 0.0001
+  fov_degree: 180
+  det_range: 150.0
+  extrinsic_est_en: false
+  extrinsic_t_il:
+  - -0.11678221240562764
+  - -0.04727165210794805
+  - 0.1985955580242468
+  extrinsic_R_il:
+  - -0.01471245373321762
+  - -0.9995388242500267
+  - 0.02656468561874173
+  - 0.9998640398204093
+  - -0.014509004486664425
+  - 0.007835219385395867
+  - -0.007446178829390448
+  - 0.026676349182011484
+  - 0.9996163898291983
+  extrinsic_T_ri:
+  - 0.9998469055720823
+  - -0.005165117633200818
+  - -0.016717864031229865
+  - 0.05098528567122207
+  - 0.004574749015821414
+  - 0.9993711812387214
+  - -0.035161253973163
+  - 0.05023077653285504
+  - 0.01688896353758075
+  - 0.0350793909490776
+  - 0.9992418121962612
+  - -0.079213845558352
+  - 0.0
+  - 0.0
+  - 0.0
+  - 1.0
+  extrinsic_T_rl:
+  - -0.019750132516187895
+  - -0.999756831289107
+  - 0.009808697995033203
+  - -0.06885497792080865
+  - 0.9994298177551558
+  - -0.02001049409361432
+  - -0.02719594653668321
+  - -0.00452826843827156
+  - 0.027385610226718034
+  - 0.009265981701588748
+  - 0.9995819976048067
+  - 0.11560054844366398
+  - 0.0
+  - 0.0
+  - 0.0
+  - 1.0
+  time_consistent_sweeps: false
+  refine_velocity_consistency: false
+pcd_save:
+  pcd_save_en: false
+  interval: -1
+  traj_save_path: /results
+radar:
+  robust: true
+  dynamic_mode: false
+  min_static_ratio: 0.2
+  min_static_points: 12
+  dynamic_threshold: 0.8
+  prior_max_age: 0.35
+  prior_base_gate: 0.4
+  prior_acceleration_bound: 3.0
+provenance:
+  tf_source: /results/raw/tf_static.launch
+  lidar_frame: PandarXT-32
+  radar_frame: oculii
+  imu_frame: zed2i_imu_link

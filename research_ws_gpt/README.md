@@ -1,4 +1,4 @@
-# GaRLIO 기반 확장 — Phase 0 gpt
+# GaRLIO 기반 확장 및 재생 검증 gpt
 
 GaRLIO의 기존 처리·필터 구조에 개선사항을 추가하고 검증하는 연구 환경이다. **개선할 코드는 이 저장소 루트의 GaRLIO**이며, Point-LIO·FAST-LIO는 비교 기준이다. 현재 작업 지침은 [CLAUDE.md](CLAUDE.md), 상태는 [docs/progress.md](docs/progress.md)에 있다. 이전 Point-LIO 기반 명세는 [원문 보관본](docs/point_lio_plan_original.md)으로 남겼다.
 
@@ -11,6 +11,10 @@ GaRLIO의 기존 처리·필터 구조에 개선사항을 추가하고 검증하
 | `point_lio`, `fast_lio` | SHA 고정 공식 비교 소스 | `bash docker/run.sh ros …` |
 
 원본은 `/opt/research/catkin_ws`, fork는 `/opt/research/fork_ws`에서 각각 빌드한다. fork를 선택한 컨테이너만 해당 overlay를 로드한다. runner는 ROS가 찾은 실제 패키지를 검사하므로 원본/개선본 이름을 혼용하면 재생 전에 실패한다. `garlio_gpt`는 fork 실행을 뜻하며 성능 개선이 검증됐다는 뜻이 아니다.
+
+**2026-10-22 후속 검증:** GaRLIO 루트에 속도 대입 품질 검사와 시간 경계를 맞춘 IMU/중력 적분을 추가했다. data4 3회 평균 공통 시각 RMSE 13.77→4.99cm, 기준 시각 커버리지 1,393→1,509개를 확인했다. data6는 평균이 줄었지만 반복 편차를 고려한 보수적인 차이 기준에는 미달했다. 시간 기능은 기본 false, 실험 프로필에서 true이며 IMU 공백에서 미래 샘플 대기 지연을 수반한다. [전체 결과·빌드 검증 오류 정정·Claude 커밋 검증](docs/SNAIL_REVALIDATION_2026-10-22.md), [재현 도구와 프로필](experiments/snail_2026_10_22/README.md)을 확인한다.
+
+**아래 2026-10-21 기록은 수정 전 이력이다.**
 
 **2026-10-21 실제 실행:** GaRLIO와 JURLIO의 합성 센서 3회 반복 및 SNAIL `20231105/data6` 약 126초 비교를 수행했다. GaRLIO·JURLIO baseline·robust는 완주했고 dynamic은 1배속·0.5배속 모두 실패했다. [수치·실패 원인·처리 구조·재실행 방법](docs/sensor_comparison_2026-10-21.md)을 확인한다. GaRLIO 알고리즘 변경은 없으며 NTU/Point-LIO 비교와 연구 계획의 전체 Phase 1은 미완료다.
 

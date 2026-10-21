@@ -1,0 +1,11 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -71,7 +71,7 @@
+ 
+ add_executable(cloudProcess src/pointProcess.cpp
+                             src/radar_ego_velocity_estimator.cpp)
+-target_link_libraries(cloudProcess ${catkin_LIBRARIES} ${PCL_LIBRARIES})
++target_link_libraries(cloudProcess ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
+ 
+ add_executable(lidarMapping src/lidarMapping.cpp
+                             src/radar_ego_velocity_estimator.cpp

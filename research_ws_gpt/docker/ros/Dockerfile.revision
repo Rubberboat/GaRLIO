@@ -1,0 +1,18 @@
+# Build an archived remote GaRLIO revision; context must be that snapshot.
+ARG RESEARCH_BASE_IMAGE=radar-point-lio-ros:phase0-gpt
+FROM ${RESEARCH_BASE_IMAGE}
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Git archives retain historical mtimes. Removing source alone can leave newer
+# objects/binaries that make considers up to date. Always clear the fork build.
+RUN rm -rf /opt/research/fork_ws/src/garlio /opt/research/fork_ws/build \
+    /opt/research/fork_ws/devel /opt/research/fork_ws/logs
+COPY . /opt/research/fork_ws/src/garlio/
+ARG RESEARCH_GIT_COMMIT
+RUN test -n "$RESEARCH_GIT_COMMIT" \
+    && source /opt/research/catkin_ws/devel/setup.bash \
+    && cd /opt/research/fork_ws && catkin build garlio --no-status --jobs 2 \
+    && python3 /opt/research/scripts/garlio_source.py --package /opt/research/fork_ws/src/garlio \
+        --output /opt/research/fork-source-manifest.json --commit "$RESEARCH_GIT_COMMIT" \
+    && sha256sum /opt/research/fork_ws/devel/lib/garlio/cloudProcess \
+        /opt/research/fork_ws/devel/lib/garlio/lidarMapping > /opt/research/fork-binaries.sha256
+ENV RESEARCH_IMAGE_COMMIT=${RESEARCH_GIT_COMMIT}

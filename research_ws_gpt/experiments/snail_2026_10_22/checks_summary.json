@@ -1,0 +1,502 @@
+{
+  "valid_case_replays": [
+    {
+      "name": "claude_linkfix_2dcc39e_data4_r1",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:8d7fbc450d5fabdde6be63b66b193ed27e2bf60c19060498b0fb92f76c97f353",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e_linkfix",
+      "source_tree_sha256": "1e0e2ced2dab8150baebeeb7e975726383a36ab200726eedd09627b7267b16f6",
+      "binary_hashes": {
+        "cloudProcess": "70e25320336c71768af6a43e49b42b2538bad56130c60014c97c72e2d5b27e6b",
+        "lidarMapping": "9b5a412c99f2aed8f2c3d9b4264749aa48226bf249e54ec610ed38355928c192"
+      },
+      "runtime_source": "2dcc39e70e2e8eb43649820d2315ef78b34a5838+opencv-link-fix"
+    },
+    {
+      "name": "claude_linkfix_2dcc39e_data4_r2",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:8d7fbc450d5fabdde6be63b66b193ed27e2bf60c19060498b0fb92f76c97f353",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e_linkfix",
+      "source_tree_sha256": "1e0e2ced2dab8150baebeeb7e975726383a36ab200726eedd09627b7267b16f6",
+      "binary_hashes": {
+        "cloudProcess": "70e25320336c71768af6a43e49b42b2538bad56130c60014c97c72e2d5b27e6b",
+        "lidarMapping": "9b5a412c99f2aed8f2c3d9b4264749aa48226bf249e54ec610ed38355928c192"
+      },
+      "runtime_source": "2dcc39e70e2e8eb43649820d2315ef78b34a5838+opencv-link-fix"
+    },
+    {
+      "name": "claude_linkfix_2dcc39e_data4_r3",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:8d7fbc450d5fabdde6be63b66b193ed27e2bf60c19060498b0fb92f76c97f353",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e_linkfix",
+      "source_tree_sha256": "1e0e2ced2dab8150baebeeb7e975726383a36ab200726eedd09627b7267b16f6",
+      "binary_hashes": {
+        "cloudProcess": "70e25320336c71768af6a43e49b42b2538bad56130c60014c97c72e2d5b27e6b",
+        "lidarMapping": "9b5a412c99f2aed8f2c3d9b4264749aa48226bf249e54ec610ed38355928c192"
+      },
+      "runtime_source": "2dcc39e70e2e8eb43649820d2315ef78b34a5838+opencv-link-fix"
+    },
+    {
+      "name": "claude_linkfix_2dcc39e_data6_r1",
+      "dataset": "data6",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:8d7fbc450d5fabdde6be63b66b193ed27e2bf60c19060498b0fb92f76c97f353",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e_linkfix",
+      "source_tree_sha256": "1e0e2ced2dab8150baebeeb7e975726383a36ab200726eedd09627b7267b16f6",
+      "binary_hashes": {
+        "cloudProcess": "70e25320336c71768af6a43e49b42b2538bad56130c60014c97c72e2d5b27e6b",
+        "lidarMapping": "9b5a412c99f2aed8f2c3d9b4264749aa48226bf249e54ec610ed38355928c192"
+      },
+      "runtime_source": "2dcc39e70e2e8eb43649820d2315ef78b34a5838+opencv-link-fix"
+    },
+    {
+      "name": "claude_linkfix_2dcc39e_data6_r2",
+      "dataset": "data6",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:8d7fbc450d5fabdde6be63b66b193ed27e2bf60c19060498b0fb92f76c97f353",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e_linkfix",
+      "source_tree_sha256": "1e0e2ced2dab8150baebeeb7e975726383a36ab200726eedd09627b7267b16f6",
+      "binary_hashes": {
+        "cloudProcess": "70e25320336c71768af6a43e49b42b2538bad56130c60014c97c72e2d5b27e6b",
+        "lidarMapping": "9b5a412c99f2aed8f2c3d9b4264749aa48226bf249e54ec610ed38355928c192"
+      },
+      "runtime_source": "2dcc39e70e2e8eb43649820d2315ef78b34a5838+opencv-link-fix"
+    },
+    {
+      "name": "claude_linkfix_2dcc39e_data6_r3",
+      "dataset": "data6",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:8d7fbc450d5fabdde6be63b66b193ed27e2bf60c19060498b0fb92f76c97f353",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e_linkfix",
+      "source_tree_sha256": "1e0e2ced2dab8150baebeeb7e975726383a36ab200726eedd09627b7267b16f6",
+      "binary_hashes": {
+        "cloudProcess": "70e25320336c71768af6a43e49b42b2538bad56130c60014c97c72e2d5b27e6b",
+        "lidarMapping": "9b5a412c99f2aed8f2c3d9b4264749aa48226bf249e54ec610ed38355928c192"
+      },
+      "runtime_source": "2dcc39e70e2e8eb43649820d2315ef78b34a5838+opencv-link-fix"
+    },
+    {
+      "name": "claude_linkfix_2dcc39e_synthetic",
+      "dataset": "synthetic",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:8d7fbc450d5fabdde6be63b66b193ed27e2bf60c19060498b0fb92f76c97f353",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e_linkfix",
+      "source_tree_sha256": "1e0e2ced2dab8150baebeeb7e975726383a36ab200726eedd09627b7267b16f6",
+      "binary_hashes": {
+        "cloudProcess": "70e25320336c71768af6a43e49b42b2538bad56130c60014c97c72e2d5b27e6b",
+        "lidarMapping": "9b5a412c99f2aed8f2c3d9b4264749aa48226bf249e54ec610ed38355928c192"
+      },
+      "runtime_source": "2dcc39e70e2e8eb43649820d2315ef78b34a5838+opencv-link-fix"
+    },
+    {
+      "name": "g_all_off_data4",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "binary_hashes": {
+        "cloudProcess": "ba340a7060cf6b57ff1154ec1eb115ee89ca5afac2b5f4e1303a71bb19e85267",
+        "lidarMapping": "5202204611a1748e3d8b69bf79d2f0f02591c96a8ebb3f441760400b965e5071"
+      },
+      "runtime_source": "44885b4992693459aa4516748c281203ef3a0c7b"
+    },
+    {
+      "name": "g_final_data4_r2",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "runtime_source": "44885b4992693459aa4516748c281203ef3a0c7b"
+    },
+    {
+      "name": "g_final_data4_r3",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "binary_hashes": {
+        "cloudProcess": "ba340a7060cf6b57ff1154ec1eb115ee89ca5afac2b5f4e1303a71bb19e85267",
+        "lidarMapping": "5202204611a1748e3d8b69bf79d2f0f02591c96a8ebb3f441760400b965e5071"
+      },
+      "runtime_source": "44885b4992693459aa4516748c281203ef3a0c7b"
+    },
+    {
+      "name": "g_final_data6_r2",
+      "dataset": "data6",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "runtime_source": "44885b4992693459aa4516748c281203ef3a0c7b"
+    },
+    {
+      "name": "g_final_data6_r3",
+      "dataset": "data6",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "binary_hashes": {
+        "cloudProcess": "ba340a7060cf6b57ff1154ec1eb115ee89ca5afac2b5f4e1303a71bb19e85267",
+        "lidarMapping": "5202204611a1748e3d8b69bf79d2f0f02591c96a8ebb3f441760400b965e5071"
+      },
+      "runtime_source": "44885b4992693459aa4516748c281203ef3a0c7b"
+    },
+    {
+      "name": "g_final_synthetic",
+      "dataset": "synthetic",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "binary_hashes": {
+        "cloudProcess": "ba340a7060cf6b57ff1154ec1eb115ee89ca5afac2b5f4e1303a71bb19e85267",
+        "lidarMapping": "5202204611a1748e3d8b69bf79d2f0f02591c96a8ebb3f441760400b965e5071"
+      },
+      "runtime_source": "44885b4992693459aa4516748c281203ef3a0c7b"
+    },
+    {
+      "name": "g_guard_d4",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:cee195235b615104a596e37c50e89aa255d522dfea7887b71fa33f879fa87c20",
+      "source_root": null,
+      "source_tree_sha256": "f327e9bd5b3edfe3c4d276795dcb3d95dbe5c876cfa95db2302f3b0ea2a102ce",
+      "runtime_source": "be69be8-plus-radar-guard-experiment"
+    },
+    {
+      "name": "g_guard_d6",
+      "dataset": "data6",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:cee195235b615104a596e37c50e89aa255d522dfea7887b71fa33f879fa87c20",
+      "source_root": null,
+      "source_tree_sha256": "f327e9bd5b3edfe3c4d276795dcb3d95dbe5c876cfa95db2302f3b0ea2a102ce",
+      "runtime_source": "be69be8-plus-radar-guard-experiment"
+    },
+    {
+      "name": "g_time_d4",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:4348dba433c86f220835ada378f5bea9a64f6f94ed035a766df5b032e4e6c53e",
+      "source_root": null,
+      "source_tree_sha256": "47c785e7a3c5e54352650f076a250bd9f398505946feb0d4c832713eba3c99b1",
+      "runtime_source": "guard-plus-time-sweeps-experiment"
+    },
+    {
+      "name": "g_time_d6",
+      "dataset": "data6",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:4348dba433c86f220835ada378f5bea9a64f6f94ed035a766df5b032e4e6c53e",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "47c785e7a3c5e54352650f076a250bd9f398505946feb0d4c832713eba3c99b1",
+      "runtime_source": "guard-plus-time-sweeps-experiment"
+    },
+    {
+      "name": "g_time_synthetic",
+      "dataset": "synthetic",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:4348dba433c86f220835ada378f5bea9a64f6f94ed035a766df5b032e4e6c53e",
+      "source_root": null,
+      "source_tree_sha256": "47c785e7a3c5e54352650f076a250bd9f398505946feb0d4c832713eba3c99b1",
+      "runtime_source": "guard-plus-time-sweeps-experiment"
+    },
+    {
+      "name": "j_one_imu_d4",
+      "dataset": "data4",
+      "method": "baseline",
+      "returncode": 0,
+      "image": "sha256:4c0219d1af76fbb68e77374605a10e36ab8bfa38ed75bf56c17f1733a7674a61",
+      "source_root": null,
+      "source_tree_sha256": "0a5622c9c59f75346f09b5ea937bf9706b1e88835f1193671a6f7189cbd4b748"
+    },
+    {
+      "name": "j_one_imu_data6",
+      "dataset": "data6",
+      "method": "baseline",
+      "returncode": 0,
+      "image": "sha256:4c0219d1af76fbb68e77374605a10e36ab8bfa38ed75bf56c17f1733a7674a61",
+      "source_root": "jurlio",
+      "source_tree_sha256": "0a5622c9c59f75346f09b5ea937bf9706b1e88835f1193671a6f7189cbd4b748",
+      "binary_hashes": {
+        "cloudProcess": "302fb961f414465bba88bafffb32de458917e66c366b4ad8f5223a7dc9e05c73",
+        "lidarMapping": "8c51d5c66a8ca95fae2cdca4884dd0e63da054e9454bc9b52babe3cce5d29eee"
+      }
+    },
+    {
+      "name": "original_data4_r2",
+      "dataset": "data4",
+      "method": "garlio",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "runtime_source": "ff4dfefad2cbd3333824c518d5652f1bf9a5039b"
+    },
+    {
+      "name": "original_data4_r3",
+      "dataset": "data4",
+      "method": "garlio",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "binary_hashes": {
+        "cloudProcess": "82d3fecd74966c1ef4eed6e23a60c9c44f483dabf4ff86d84b919ccf16d74ad7",
+        "lidarMapping": "cd8d919446a2936d9a3641231cb47fdbd9125500d25ea788d25db71804850cc0"
+      },
+      "runtime_source": "ff4dfefad2cbd3333824c518d5652f1bf9a5039b"
+    },
+    {
+      "name": "original_data6_r2",
+      "dataset": "data6",
+      "method": "garlio",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "runtime_source": "ff4dfefad2cbd3333824c518d5652f1bf9a5039b"
+    },
+    {
+      "name": "original_data6_r3",
+      "dataset": "data6",
+      "method": "garlio",
+      "returncode": 0,
+      "image": "sha256:f3b68480e7e5fe1fc590cf30c075f47a516a4864e5d7bbec10966bd1c516bbc1",
+      "source_root": "GaRLIO",
+      "source_tree_sha256": "d9376dca7e2f700ab7c1f3f0b6bf05ee300bb087a7619f15ea43066333d2aae0",
+      "binary_hashes": {
+        "cloudProcess": "82d3fecd74966c1ef4eed6e23a60c9c44f483dabf4ff86d84b919ccf16d74ad7",
+        "lidarMapping": "cd8d919446a2936d9a3641231cb47fdbd9125500d25ea788d25db71804850cc0"
+      },
+      "runtime_source": "ff4dfefad2cbd3333824c518d5652f1bf9a5039b"
+    }
+  ],
+  "invalid_case_replays": [
+    {
+      "name": "claude_2dcc39e_data4",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f9f83f1e4a08e0f90915d8bd332d5357c7b7ec5bbabaa4a3826a12bd03691177",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e",
+      "source_tree_sha256": "05f97a77549acf30b8cebce4a786243e19b729584d39431ead68ba03484b097f",
+      "validation_status": "invalid_stale_binary",
+      "reason": "Archived sources predated inherited object files; catkin skipped recompilation. Both fork executable SHA256 values exactly equal the pre-change base image. Not a valid test of Claude 2dcc39e."
+    },
+    {
+      "name": "claude_2dcc39e_data4_r2",
+      "dataset": "data4",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f9f83f1e4a08e0f90915d8bd332d5357c7b7ec5bbabaa4a3826a12bd03691177",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e",
+      "source_tree_sha256": "05f97a77549acf30b8cebce4a786243e19b729584d39431ead68ba03484b097f",
+      "validation_status": "invalid_stale_binary",
+      "reason": "Archived sources predated inherited object files; catkin skipped recompilation. Both fork executable SHA256 values exactly equal the pre-change base image. Not a valid test of Claude 2dcc39e."
+    },
+    {
+      "name": "claude_2dcc39e_data6",
+      "dataset": "data6",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f9f83f1e4a08e0f90915d8bd332d5357c7b7ec5bbabaa4a3826a12bd03691177",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e",
+      "source_tree_sha256": "05f97a77549acf30b8cebce4a786243e19b729584d39431ead68ba03484b097f",
+      "validation_status": "invalid_stale_binary",
+      "reason": "Archived sources predated inherited object files; catkin skipped recompilation. Both fork executable SHA256 values exactly equal the pre-change base image. Not a valid test of Claude 2dcc39e."
+    },
+    {
+      "name": "claude_2dcc39e_synthetic",
+      "dataset": "synthetic",
+      "method": "garlio_gpt",
+      "returncode": 0,
+      "image": "sha256:f9f83f1e4a08e0f90915d8bd332d5357c7b7ec5bbabaa4a3826a12bd03691177",
+      "source_root": "output/improvement_2026-10-22/claude_sources/garlio_2dcc39e",
+      "source_tree_sha256": "05f97a77549acf30b8cebce4a786243e19b729584d39431ead68ba03484b097f",
+      "validation_status": "invalid_stale_binary",
+      "reason": "Archived sources predated inherited object files; catkin skipped recompilation. Both fork executable SHA256 values exactly equal the pre-change base image. Not a valid test of Claude 2dcc39e."
+    }
+  ],
+  "shared_harness_replays": [
+    {
+      "method": "garlio",
+      "repeat": 1,
+      "status": "completed",
+      "directory": "repeat_1/garlio/sequence/run_1"
+    },
+    {
+      "method": "garlio_gpt",
+      "repeat": 1,
+      "status": "completed",
+      "directory": "repeat_1/garlio_gpt/sequence/run_1"
+    },
+    {
+      "method": "baseline",
+      "repeat": 1,
+      "status": "completed",
+      "directory": "repeat_1/jurlio_baseline"
+    }
+  ],
+  "valid_replay_count": 27,
+  "invalid_replay_count": 4,
+  "exact_claude_build": "failed_missing_opencv_link",
+  "bag_sha256": {
+    "data4": "08c11a40963c1c7d3d658666dcc7628bb3f8c7bab6f6ce87f887dbc5f3ea5430",
+    "data6": "7c4bbd526bd87413bf790fd3832d26f9a088fb1797907a7dd0ac80c3db6302fb",
+    "synthetic": "fb1ade8fae07d3014f5a2e89c139fb68d2d7e633ad9c6f40e7abe4f90c8acb4d"
+  },
+  "synthetic_metrics": {
+    "g_time_synthetic": {
+      "alignment": "none",
+      "scale": 1.0,
+      "matched_poses": 116,
+      "estimated_poses": 116,
+      "groundtruth_poses": 2401,
+      "estimate_match_fraction": 1.0,
+      "max_timestamp_error_s": 9.5367431640625e-07,
+      "ate_rmse_m": 0.00380401320678389,
+      "rotation_rmse_deg": 0.02846069404382607,
+      "ate_median_m": 0.003410110855985778,
+      "ate_max_m": 0.006005459779970183,
+      "z_rmse_m": 0.001104655482136105,
+      "endpoint_error_m": 0.0037755608910409015,
+      "matched_duration_s": 11.5,
+      "estimated_position_frame": "input (must match GT origin)",
+      "note": "z error is in the reference coordinate system after the selected alignment; no scale fitting"
+    },
+    "g_final_synthetic": {
+      "alignment": "none",
+      "scale": 1.0,
+      "matched_poses": 116,
+      "estimated_poses": 116,
+      "groundtruth_poses": 2401,
+      "estimate_match_fraction": 1.0,
+      "max_timestamp_error_s": 9.5367431640625e-07,
+      "ate_rmse_m": 0.0038021505727225424,
+      "rotation_rmse_deg": 0.028481510949772325,
+      "ate_median_m": 0.0034076381339028256,
+      "ate_max_m": 0.006005459780836965,
+      "z_rmse_m": 0.0011050637477414613,
+      "endpoint_error_m": 0.0035920188579845395,
+      "matched_duration_s": 11.5,
+      "estimated_position_frame": "input (must match GT origin)",
+      "note": "z error is in the reference coordinate system after the selected alignment; no scale fitting"
+    },
+    "claude_linkfix_2dcc39e_synthetic": {
+      "alignment": "none",
+      "scale": 1.0,
+      "matched_poses": 116,
+      "estimated_poses": 116,
+      "groundtruth_poses": 2401,
+      "estimate_match_fraction": 1.0,
+      "max_timestamp_error_s": 3.6716461181640625e-05,
+      "ate_rmse_m": 0.0036617904215384936,
+      "rotation_rmse_deg": 0.02829015220060003,
+      "ate_median_m": 0.0033145811608193483,
+      "ate_max_m": 0.005867625969700447,
+      "z_rmse_m": 0.0011618639677804356,
+      "endpoint_error_m": 0.003809436966951625,
+      "matched_duration_s": 11.50002646446228,
+      "estimated_position_frame": "input (must match GT origin)",
+      "note": "z error is in the reference coordinate system after the selected alignment; no scale fitting"
+    },
+    "shared_harness/jurlio_baseline": {
+      "alignment": "none",
+      "scale": 1.0,
+      "matched_poses": 116,
+      "estimated_poses": 116,
+      "groundtruth_poses": 2401,
+      "estimate_match_fraction": 1.0,
+      "max_timestamp_error_s": 0.0,
+      "ate_rmse_m": 0.003675823889537272,
+      "rotation_rmse_deg": 0.02751553099772539,
+      "ate_median_m": 0.003346367901066855,
+      "ate_max_m": 0.005995799366086565,
+      "z_rmse_m": 0.001073201026830796,
+      "endpoint_error_m": 0.0039061193006351496,
+      "matched_duration_s": 11.5,
+      "estimated_position_frame": "input (must match GT origin)",
+      "note": "z error is in the reference coordinate system after the selected alignment; no scale fitting"
+    },
+    "shared_harness/garlio_gpt/sequence/run_1": {
+      "alignment": "none",
+      "scale": 1.0,
+      "matched_poses": 116,
+      "estimated_poses": 116,
+      "groundtruth_poses": 2401,
+      "estimate_match_fraction": 1.0,
+      "max_timestamp_error_s": 3.6716461181640625e-05,
+      "ate_rmse_m": 0.0036617904215384936,
+      "rotation_rmse_deg": 0.02829015220060003,
+      "ate_median_m": 0.0033145811608193483,
+      "ate_max_m": 0.005867625969700447,
+      "z_rmse_m": 0.0011618639677804356,
+      "endpoint_error_m": 0.003809436966951625,
+      "matched_duration_s": 11.50002646446228,
+      "estimated_position_frame": "input (must match GT origin)",
+      "note": "z error is in the reference coordinate system after the selected alignment; no scale fitting"
+    },
+    "shared_harness/garlio/sequence/run_1": {
+      "alignment": "none",
+      "scale": 1.0,
+      "matched_poses": 116,
+      "estimated_poses": 116,
+      "groundtruth_poses": 2401,
+      "estimate_match_fraction": 1.0,
+      "max_timestamp_error_s": 3.6716461181640625e-05,
+      "ate_rmse_m": 0.0036617904215384936,
+      "rotation_rmse_deg": 0.02829015220060003,
+      "ate_median_m": 0.0033145811608193483,
+      "ate_max_m": 0.005867625969700447,
+      "z_rmse_m": 0.0011618639677804356,
+      "endpoint_error_m": 0.003809436966951625,
+      "matched_duration_s": 11.50002646446228,
+      "estimated_position_frame": "input (must match GT origin)",
+      "note": "z error is in the reference coordinate system after the selected alignment; no scale fitting"
+    }
+  },
+  "python_tests": {
+    "garlio": 31,
+    "jurlio": 18,
+    "status": "passed",
+    "logs": "shared_harness_synthetic/logs/{garlio_harness_tests,jurlio_tests}.log"
+  },
+  "cpp_numerical_programs": {
+    "garlio": 2,
+    "jurlio": 7,
+    "status": "passed",
+    "logs": [
+      "build_garlio_final.log",
+      "build_jurlio_clean_check.log"
+    ]
+  },
+  "host_test_retry": "The plotting Python environment lacked psutil; all 31 harness tests passed in ci_env and again in the ROS image.",
+  "independent_clean_binary_equality": {
+    "garlio": true,
+    "jurlio": true
+  }
+}

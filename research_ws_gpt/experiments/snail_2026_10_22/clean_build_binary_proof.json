@@ -1,0 +1,9 @@
+{
+  "own_previous": "ba340a7060cf6b57ff1154ec1eb115ee89ca5afac2b5f4e1303a71bb19e85267  /opt/research/fork_ws/devel/lib/garlio/cloudProcess\n5202204611a1748e3d8b69bf79d2f0f02591c96a8ebb3f441760400b965e5071  /opt/research/fork_ws/devel/lib/garlio/lidarMapping\n",
+  "own_clean": "ba340a7060cf6b57ff1154ec1eb115ee89ca5afac2b5f4e1303a71bb19e85267  /opt/research/fork_ws/devel/lib/garlio/cloudProcess\n5202204611a1748e3d8b69bf79d2f0f02591c96a8ebb3f441760400b965e5071  /opt/research/fork_ws/devel/lib/garlio/lidarMapping\n",
+  "claude_invalid": "ba340a7060cf6b57ff1154ec1eb115ee89ca5afac2b5f4e1303a71bb19e85267  /opt/research/fork_ws/devel/lib/garlio/cloudProcess\n7dbf87a75a6aa8e9dabb32c5494b1152bc90525d73362d31f293136710298ef8  /opt/research/fork_ws/devel/lib/garlio/lidarMapping\n",
+  "claude_linkfix": "70e25320336c71768af6a43e49b42b2538bad56130c60014c97c72e2d5b27e6b  /opt/research/fork_ws/devel/lib/garlio/cloudProcess\n9b5a412c99f2aed8f2c3d9b4264749aa48226bf249e54ec610ed38355928c192  /opt/research/fork_ws/devel/lib/garlio/lidarMapping\n",
+  "exact_claude_build": "failed: missing OpenCV linkage",
+  "own_equal": true,
+  "claude_changed": true
+}
