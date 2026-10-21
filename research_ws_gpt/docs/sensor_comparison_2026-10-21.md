@@ -1,5 +1,7 @@
 # GaRLIO·JURLIO 센서 재생 비교 — 2026-10-21
 
+> 2026-10-22 추가 검증: 복구 수정 후 총 27회 재생을 완료했다(26회 실행 완료, 복구 OFF 1회 예상 실패). 새 data4에서는 원본 GaRLIO RMSE 14.225cm, JURLIO dynamic 38.639cm로 정확도가 악화됐다. 개발 data6 원본도 4회 RMSE 2.427–2.974cm·최대 오차 9.350–39.610cm로 편차가 있어 최초 결과만으로 개선 폭을 확정할 수 없다. [최종 보고서와 그래프](https://github.com/Rubberboat/jurlio/blob/codex/integration-audit-gpt/docs/FULL_VALIDATION_2026-10-21.md)를 우선 참고한다. 아래 최초 결과는 이력을 위해 보존한다.
+
 > 후속 수정: 아래는 수정 전 비교 기록이다. 같은 날 JURLIO dynamic의 레이더 측정 거부 후 복구를 추가해 실측 126초를 3회 완주했다. 위치 RMSE는 2.225–2.234 cm, 최대 오차는 9.066–9.122 cm였다. 상세 설계·대조 시험·한계는 별도 `jurlio/docs/RECOVERY_2026-10-21.md`, 원시 결과는 부모 작업 폴더의 `output/recovery_2026-10-21/`에 있다. 이 GaRLIO 저장소의 원본 알고리즘은 변경하지 않았다.
 
 **기본 궤적 추정은 정상 작동했다. JURLIO robust의 개선은 작으며, dynamic은 실측 데이터에서 실패했다.** 연구 기반으로는 쓸 만하지만, 새 기능이 원본보다 확실히 좋거나 실사용 준비가 끝났다고 말할 결과는 아니다.

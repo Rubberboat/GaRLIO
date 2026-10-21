@@ -131,3 +131,15 @@
 - **실행으로 확인됨:** PyYAML 6.0.3·psutil 7.0.0·NumPy 1.26.4를 설치한 깨끗한 Python 환경에서 harness 31개 통과. 최신 push 커밋으로 공식 GaRLIO·FAST-LIO·Point-LIO 및 fork overlay를 로컬 재빌드하고 원본/fork 패키지 선택·소스 manifest·분석 이미지 import 검사까지 통과했다.
 - JURLIO 원격 CI `39616406276`는 GitHub 계정 결제 실패 또는 spending limit 때문에 단계가 시작되지 않았다. GaRLIO harness의 의존성 오류와 구분한다. JURLIO의 최신 커밋 로컬 ROS 빌드·수치 검사 7개·Python 18개 및 합성 네 방법×3회는 통과했다.
 - 실측 반복·미사용 시퀀스 평가와 추가 장애 시험은 계속 진행 중이다. 결과 파일은 부모 작업 폴더 `output/push_validation_2026-10-21/`에 보존한다. 이 설정 수정의 원격 CI 성공 여부는 후속 결과에 기록한다.
+
+## 2026-10-22 — push 이후 전체 재생 및 추가 구간 평가 완료
+
+- **실행으로 확인됨:** 합성 네 방법×3회, 실측 data6 네 방법, 새 data4 네 방법과 dynamic 0.5배속, 장애 ON/OFF·메시지 제거, CI dynamic 0.5배속, 원본 data6 추가 2회로 총 27회 ROS 재생을 마쳤다. 26회 실행 완료와 의도한 복구 OFF 실패 1회이며 정확도·연속성 26회 합격을 뜻하지 않는다.
+- 새 SNAIL `20231007/data4` 152.566초를 다운로드해 공식 MD5·SDK 6프레임·IMU 27,428개의 모든 필드·시각을 대조했다. X36D 원본의 서로 다른 값에 중복 시각 3쌍이 있어 변환기가 올바르게 거부했다. 알고리즘 결과를 보기 전에 ZED2i IMU와 공식 외부 보정으로 비교 구성을 정했고 모든 방법에 동일하게 적용했다. 최대 0.941초·0.2초 초과 31곳의 실제 입력 공백을 보존했다.
+- **정확도 한계 확인:** data4 공통 기준점 1,369/1,509개에서 원본 GaRLIO/baseline/robust/dynamic RMSE 14.225/40.810/37.408/38.639cm. dynamic 0.5배속도 34.554cm로 원본보다 나빴다. 입력 공백만을 성능 차이의 원인으로 단정하지 않으며 추가 구간을 보고 C++를 튜닝하지 않았다.
+- data6 이번 원본/dynamic RMSE는 2.439/2.228cm다. 원본 최초 실행까지 포함한 4회 범위는 RMSE 2.427–2.974cm·최대 오차 9.350–39.610cm다. 원본의 RANSAC 난수 초기화와 비동기는 원인 후보이며 분리 입증하지 않았다. 최초 39cm→9cm 차이를 고정된 개선 폭으로 표현하지 않는다.
+- 빈 레이더 40프레임 복구 ON은 116 pose·RMSE 4.628mm·최대 간격 0.100초로 통과했다. OFF는 27 pose 뒤 멈췄다. 레이더 메시지 자체를 4초 제거한 경우 복귀 후 실행은 마쳤으나 4.100초 출력 공백이 남았다.
+- **CI 확인:** NumPy 설치 목록을 고친 `7940232`의 [GitHub CI](https://github.com/Rubberboat/GaRLIO/actions/runs/39618646610) harness·images 모두 성공했다. 로컬 GaRLIO harness 31개, 원본/fork/FAST-LIO/Point-LIO 빌드·패키지·소스 검사, 분석 이미지 import 검사를 통과했다. FAST-LIO·Point-LIO 실측 궤적 비교는 수행하지 않았다.
+- JURLIO `4272ec6`·`fe57169`는 push됐고 로컬 ROS 빌드·C++ 수치 7개·Python 18개를 통과했다. [원격 CI](https://github.com/Rubberboat/jurlio/actions/runs/39620280440)는 계정 결제 실패 또는 spending limit으로 job 단계가 시작되지 않았다. 코드 실패나 원격 CI 성공으로 기록하지 않는다. 최종 `jurlio:validated-gpt`의 두 ROS 실행 파일은 전체 재생에 사용한 바이너리와 hash가 같다.
+- 이 GaRLIO의 핵심 패키지 파일 31개는 고정 공식 원본 `ff4dfef`와 동일하다. 논문 기능을 임의로 제거하지 않았다. 최종 결과는 [JURLIO 보고서](https://github.com/Rubberboat/jurlio/blob/codex/integration-audit-gpt/docs/FULL_VALIDATION_2026-10-21.md), 부모 폴더 `output/push_validation_2026-10-21/`에 원시 성공·실패 로그와 입력·소스·이미지 식별자를 보존한다. 보고서에는 구조 설명의 이전 문서, 비교 그래프, 수치 JSON, 재현 분석 코드를 연결했다.
+- 남은 연구는 JURLIO 공통 변경 ablation, IMU 공백에서 전파·중력 의존성, fused prior의 시각 정합과 레이더 메시지 단절 시 스윕 생성이다. 이번 요청의 실행·보고를 완료하되 NTU·Point-LIO 비교를 포함한 전체 연구 계획 완료나 실사용 성능 우위를 주장하지 않는다.
